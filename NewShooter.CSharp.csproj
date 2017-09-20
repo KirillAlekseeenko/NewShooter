@@ -62,10 +62,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\ProgressBar\Script\ProgressBarBehaviour.cs" />
+    <Compile Include="Assets\ProgressBar\Script\Utils.cs" />
     <Compile Include="Assets\Script\BorderScript.cs" />
+    <Compile Include="Assets\Script\BulletScript.cs" />
+    <Compile Include="Assets\Script\ButtonScript.cs" />
+    <Compile Include="Assets\Script\DestroyedScript.cs" />
     <Compile Include="Assets\Script\EnemyScript.cs" />
+    <Compile Include="Assets\Script\ExplosionScript.cs" />
     <Compile Include="Assets\Script\GunScript.cs" />
+    <Compile Include="Assets\Script\LevelManagerScript.cs" />
+    <Compile Include="Assets\Script\MainCameraScript.cs" />
+    <Compile Include="Assets\Script\MainMenuScript.cs" />
     <Compile Include="Assets\Script\MainScript.cs" />
+    <Compile Include="Assets\Script\ProgressRadialBehaviour.cs" />
+    <Compile Include="Assets\Script\UI\MainPanelScript.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>

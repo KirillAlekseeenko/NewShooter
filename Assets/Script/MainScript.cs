@@ -305,7 +305,7 @@ public class MainScript : MonoBehaviour {
 		Background.Translate (new Vector3 (0, 6.0f, 0), Space.World);
 		audioPanel.SetActive (true);
 		mainUIPanel.SetActive (false);
-		pausePanel.SetActive (false);
+		//pausePanel.SetActive (false);
 	}
 	public void AudioPanelBackButtonClick()
 	{

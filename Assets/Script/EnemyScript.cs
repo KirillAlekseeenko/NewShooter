@@ -10,7 +10,7 @@ public class EnemyScript : MonoBehaviour {
 	[SerializeField]
 	private GameObject EnemyInAdvance;
 	[SerializeField]
-	private GameObject Model;
+	public GameObject Model;
 	private Vector3 velocity;
 
 
