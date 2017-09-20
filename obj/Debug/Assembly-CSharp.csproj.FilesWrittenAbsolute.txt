@@ -1,0 +1,17 @@
+/Users/Kirill/Desktop/project1/NewShooter/Temp/bin/Debug/UnityEngine.dll
+/Users/Kirill/Desktop/project1/NewShooter/Temp/bin/Debug/UnityEditor.dll
+/Users/Kirill/Desktop/project1/NewShooter/Temp/bin/Debug/UnityEngine.UI.dll
+/Users/Kirill/Desktop/project1/NewShooter/Temp/bin/Debug/UnityEngine.Networking.dll
+/Users/Kirill/Desktop/project1/NewShooter/Temp/bin/Debug/Mono.Cecil.dll
+/Users/Kirill/Desktop/project1/NewShooter/Temp/bin/Debug/Unity.SerializationLogic.dll
+/Users/Kirill/Desktop/project1/NewShooter/Temp/bin/Debug/Unity.DataContract.dll
+/Users/Kirill/Desktop/project1/NewShooter/Temp/bin/Debug/ICSharpCode.NRefactory.dll
+/Users/Kirill/Desktop/project1/NewShooter/Temp/bin/Debug/Unity.UNetWeaver.dll
+/Users/Kirill/Desktop/project1/NewShooter/Temp/bin/Debug/Unity.UNetWeaver.dll.mdb
+/Users/Kirill/Desktop/project1/NewShooter/Temp/bin/Debug/Unity.CecilTools.dll
+/Users/Kirill/Desktop/project1/NewShooter/Temp/bin/Debug/Mono.Cecil.Pdb.dll
+/Users/Kirill/Desktop/project1/NewShooter/Temp/bin/Debug/Mono.Cecil.Mdb.dll
+/Users/Kirill/Desktop/project1/NewShooter/Temp/bin/Debug/Assembly-CSharp.dll.mdb
+/Users/Kirill/Desktop/project1/NewShooter/Temp/bin/Debug/Assembly-CSharp.dll
+/Users/Kirill/Desktop/project1/NewShooter/obj/Debug/Assembly-CSharp.dll
+/Users/Kirill/Desktop/project1/NewShooter/obj/Debug/Assembly-CSharp.dll.mdb

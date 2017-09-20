@@ -1,0 +1,358 @@
+﻿using UnityEngine;
+using System.Collections;
+using UnityEngine.UI;
+using System.Collections.Generic;
+using UnityEngine.SceneManagement;
+using System;
+
+public class MainScript : MonoBehaviour {
+
+	public int levelNumber;
+	public Transform Enemy;
+	public Transform Background;
+    
+    public float SpawnEnemyBorder;
+	public float SpawnHeight;
+
+
+
+	private float timeToSpawn;
+	private int score;
+	private float time;
+	private float timeUpdate = 0.1f;
+	private bool finished = false;
+
+	// balance
+	public float timeToTheEnd;
+	private float SpawnTime;
+	public int initialScore;
+	public int addToScore;
+	public int takeFromScore;
+	public int oneStarBorder;
+	public int twoStarsBorder;
+	public int threeStarsBorder;
+
+	//panels
+	public GameObject mainUIPanel;
+	public GameObject pausePanel;
+	public GameObject resultPanel;
+	public GameObject audioPanel;
+
+	//result panel stuff
+	public Text resultScoreText;
+	public GameObject Star_1;
+	public GameObject Star_2;
+	public GameObject Star_3;
+	public Button nextButton;
+	[SerializeField]
+	private Button pauseButton;
+
+	public Text scoreText;
+	public Text timeText;
+
+
+	//audio
+	[SerializeField]
+	private Toggle audioToggle;
+	[SerializeField]
+	private Slider effectsSlider;
+	[SerializeField]
+	private Slider musicSlider;
+	[SerializeField]
+	private Slider audioSlider;
+
+	//animations
+
+	public Animator transitionImage;
+
+
+    // Use this for initialization
+    void Start () {
+		SpawnTime = LevelManagerScript.currentLevel.spawnRate;
+		Time.timeScale = 1;
+		timeToSpawn = SpawnTime;
+		time = timeToTheEnd;
+		score = initialScore;
+		updateScoreLabel ();
+		BorderScript.onMiss += reduceScore;
+		BulletScript.onHit += addScore;
+
+
+    }
+
+	private void unsubscribeFromEvents()
+	{
+		BorderScript.onMiss -= reduceScore;
+		BulletScript.onHit -= addScore;
+	}
+	/*void onDestroy()
+	{
+		BorderScript.onMiss -= reduceScore;
+		EnemyScript.onHit -= addScore;
+	}*/
+	/*
+	void onEnable()
+	{
+		BorderScript.onMiss += reduceScore;
+		EnemyScript.onHit += addScore;
+	}
+	void onDisable()
+	{
+		BorderScript.onMiss -= reduceScore;
+		EnemyScript.onHit -= addScore;
+	}*/
+
+	// Update is called once per frame
+	void Update () {
+        if (timeToSpawn > 0)
+        {
+            timeToSpawn -= Time.deltaTime;
+			time -= Time.deltaTime;
+			timeUpdate -= Time.deltaTime;
+
+			if (timeUpdate <= 0) {
+				updateTimeLabel ();
+				timeUpdate = 0.1f;
+			}
+
+			if (time <= 0 && !finished) {
+				finished = true;
+				timeIsUp ();
+			}
+        }
+        else
+        {
+			SpawnEnemy (LevelManagerScript.currentLevel.enemyType);
+        }
+        
+    }
+
+	private void SpawnEnemy(EnemyScript.EnemyType type)
+	{
+		timeToSpawn = SpawnTime;
+		Transform _enemy = Instantiate(Enemy, new Vector3(UnityEngine.Random.Range(-SpawnEnemyBorder, SpawnEnemyBorder), 0, SpawnHeight), Quaternion.Euler(new Vector3(0, 0, 0))) as Transform;
+		_enemy.GetComponent<EnemyScript> ().setType (type);
+	}
+
+	public void updateScoreLabel()
+	{
+		if(score > 0)
+			scoreText.text = "Score: " + score.ToString();
+		else
+			scoreText.text = "Score: 0";
+	}
+	public void updateTimeLabel()
+	{
+		timeText.text = time.ToString ();
+	}
+
+	public void reduceScore()
+	{
+		score -= takeFromScore;
+		updateScoreLabel ();
+	}
+	public void addScore()
+	{
+		score += addToScore;
+		updateScoreLabel ();	
+	}
+	public void timeIsUp()
+	{
+		// ...bring up achieves
+		List<LevelManagerScript.Level> levelList;
+
+		if (PlayerPrefs.HasKey ("SAVE")) {
+
+			var jsonString = PlayerPrefs.GetString ("SAVE");
+
+			levelList = JsonUtility.FromJson<LevelManagerScript.LevelListWrapper> (jsonString).levelList;
+
+			int stars = 0;
+
+			if (score >= oneStarBorder)
+				stars++;
+			if (score >= twoStarsBorder)
+				stars++;
+			if (score >= threeStarsBorder)
+				stars++;
+
+
+			if (stars > levelList [levelNumber - 1].stars)
+				levelList [levelNumber - 1].stars = stars;
+			if (levelList [levelNumber - 1].stars > 0 &&
+			    levelNumber < levelList.Count &&
+			    levelList [levelNumber].locked) 
+			{
+				levelList [levelNumber].locked = false;
+			}
+
+			PlayerPrefs.SetString ("SAVE", JsonUtility.ToJson (new LevelManagerScript.LevelListWrapper(levelList)));
+
+
+
+			resultScoreText.text = "Score: " + score.ToString ();
+
+			switch (stars) {
+
+			case 0:
+				{
+					nextButton.interactable = false;
+					Star_1.SetActive (false);
+					Star_2.SetActive (false);
+					Star_3.SetActive (false);
+					break;
+				}
+			case 1:
+				{
+					Star_2.SetActive (false);
+					Star_3.SetActive (false);
+					break;
+				}
+			case 2:
+				{
+					Star_3.SetActive (false);
+					break;
+				}
+			default:
+				{
+					break;
+				}
+			}
+		}
+		else
+			Debug.Log ("There's no key SAVE");
+
+		StartCoroutine (finish ());
+
+	}
+
+	// result panel
+	public void TryAgainButtonClick()
+	{
+		Time.timeScale = 1;
+		//resultPanel.SetActive (false);
+		nextButton.interactable = true;
+
+		unsubscribeFromEvents ();
+
+		//SceneManager.LoadScene (SceneManager.GetActiveScene ().name);
+		StartCoroutine (sceneFadeOut (SceneManager.LoadScene, SceneManager.GetActiveScene ().name));
+	}
+	public void NextButtonClick ()
+	{
+		//resultPanel.SetActive (false);
+		//SceneManager.LoadScene ("Level" + (levelNumber + 1).ToString ());
+		Time.timeScale = 1;
+		if (PlayerPrefs.HasKey ("SAVE") && PlayerPrefs.GetString ("SAVE") != "{}") {
+
+			var jsonString = PlayerPrefs.GetString ("SAVE");
+			List<LevelManagerScript.Level> levelList = JsonUtility.FromJson<LevelManagerScript.LevelListWrapper> (jsonString).levelList;
+			int next = LevelManagerScript.currentLevel.number;
+			LevelManagerScript.currentLevel = new LevelManagerScript.Level (levelList [next - 1]);
+		}
+
+		unsubscribeFromEvents ();
+
+		StartCoroutine (sceneFadeOut (SceneManager.LoadScene, "Level1"));
+	}
+
+
+	//pause
+	public void PauseButtonClick()
+	{
+		StartCoroutine (pause ());
+	}
+	private IEnumerator pause()
+	{
+		pausePanel.GetComponent<Animator> ().SetBool ("isHidden", false);
+		pauseButton.gameObject.SetActive (false);
+		yield return new WaitForSeconds (0.5f);
+		Time.timeScale = 0;
+	}
+	private void unpause()
+	{
+		Time.timeScale = 1;
+		pausePanel.GetComponent<Animator> ().SetBool ("isHidden", true);
+		pauseButton.gameObject.SetActive (true);
+	}
+	private IEnumerator finish()
+	{
+		mainUIPanel.SetActive (false);
+		resultPanel.GetComponent<Animator> ().SetBool ("isHidden", false);
+		yield return new WaitForSeconds (0.5f);
+		Time.timeScale = 0;
+	}
+	public void ResumeButtonClick()
+	{
+		unpause ();
+	}
+
+	// audio
+	public void OptionsButtonClick()
+	{
+		if(PlayerPrefs.HasKey("AUDIO"))
+		{
+			AudioInfo audioInfo = JsonUtility.FromJson<AudioInfo>(PlayerPrefs.GetString("AUDIO"));
+
+			audioToggle.isOn = audioInfo.muted;
+			effectsSlider.value = audioInfo.effectsVolume;
+			musicSlider.value = audioInfo.musicVolume;
+			audioSlider.value = audioInfo.audioVolume;
+
+
+		}
+
+		Background.Translate (new Vector3 (0, 6.0f, 0), Space.World);
+		audioPanel.SetActive (true);
+		mainUIPanel.SetActive (false);
+		pausePanel.SetActive (false);
+	}
+	public void AudioPanelBackButtonClick()
+	{
+		AudioInfo audioInfo = new AudioInfo (audioToggle.isOn, audioSlider.value, musicSlider.value, effectsSlider.value);
+		PlayerPrefs.SetString ("AUDIO", JsonUtility.ToJson (audioInfo));
+
+		Background.Translate (new Vector3 (0, -6.0f, 0), Space.World);
+		audioPanel.SetActive (false);
+		mainUIPanel.SetActive (true);
+		pausePanel.SetActive (true);
+	}
+	public void onMusicSliderValueChanged()
+	{
+		//this.GetComponent<AudioSource> ().volume = musicSlider.value;
+	}
+	public void onEffectsSliderValueChanged()
+	{
+
+	}
+	public void onAudioSliderValueChanged()
+	{
+		AudioListener.volume = audioSlider.value;
+	}
+	public void onAudioToggleValueChanged()
+	{
+		if (audioToggle.isOn)
+			AudioListener.volume = 0;
+		else
+			AudioListener.volume = 1.0f;
+	}
+
+
+	public void MainMenuButtonClick()
+	{
+		Time.timeScale = 1;
+		unsubscribeFromEvents ();
+		//SceneManager.LoadScene ("MainMenu");
+		StartCoroutine (sceneFadeOut (SceneManager.LoadScene, "MainMenu"));
+	}
+
+	private IEnumerator sceneFadeOut(Action<string> f, string arg)
+	{
+		transitionImage.SetBool ("faded", true);
+		yield return new WaitForSeconds (0.5f);
+		f (arg);
+	}
+
+}
+
+
