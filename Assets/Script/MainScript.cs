@@ -64,6 +64,7 @@ public class MainScript : MonoBehaviour {
 	//animations
 
 	public Animator transitionImage;
+	public List<Animator> pauseButtons;
 
 
     // Use this for initialization
@@ -222,19 +223,19 @@ public class MainScript : MonoBehaviour {
 		else
 			Debug.Log ("There's no key SAVE");
 
-		StartCoroutine (finish ());
+
+		finish ();
 
 	}
 
 	// result panel
 	public void TryAgainButtonClick()
 	{
-		Time.timeScale = 1;
-		//resultPanel.SetActive (false);
 		nextButton.interactable = true;
 
 		unsubscribeFromEvents ();
-
+		Time.timeScale = 1;
+		//resultPanel.SetActive (false);
 		//SceneManager.LoadScene (SceneManager.GetActiveScene ().name);
 		StartCoroutine (sceneFadeOut (SceneManager.LoadScene, SceneManager.GetActiveScene ().name));
 	}
@@ -260,31 +261,32 @@ public class MainScript : MonoBehaviour {
 	//pause
 	public void PauseButtonClick()
 	{
-		StartCoroutine (pause ());
+		pause ();
 	}
-	private IEnumerator pause()
+	private void pause()
 	{
-		pausePanel.GetComponent<Animator> ().SetBool ("isHidden", false);
 		pauseButton.gameObject.SetActive (false);
-		yield return new WaitForSeconds (0.5f);
 		Time.timeScale = 0;
+		pausePanel.GetComponent<Animator> ().SetBool ("isHidden", false);
 	}
-	private void unpause()
+	private IEnumerator unpause()
 	{
-		Time.timeScale = 1;
 		pausePanel.GetComponent<Animator> ().SetBool ("isHidden", true);
+		yield return new WaitForSecondsRealtime (0.5f);
+		Time.timeScale = 1;
 		pauseButton.gameObject.SetActive (true);
 	}
-	private IEnumerator finish()
+	private void finish()
 	{
 		mainUIPanel.SetActive (false);
-		resultPanel.GetComponent<Animator> ().SetBool ("isHidden", false);
-		yield return new WaitForSeconds (0.5f);
 		Time.timeScale = 0;
+
+		resultPanel.GetComponent<Animator> ().SetBool ("isHidden", false);
+		//yield return new WaitForSecondsRealtime (0.5f);
 	}
 	public void ResumeButtonClick()
 	{
-		unpause ();
+		StartCoroutine (unpause ());
 	}
 
 	// audio
@@ -302,20 +304,40 @@ public class MainScript : MonoBehaviour {
 
 		}
 
-		Background.Translate (new Vector3 (0, 6.0f, 0), Space.World);
-		audioPanel.SetActive (true);
-		mainUIPanel.SetActive (false);
+		StartCoroutine (pauseToAudioTransition ());
+
+		//Background.Translate (new Vector3 (0, 6.0f, 0), Space.World);
+		//audioPanel.SetActive (true);
+		//mainUIPanel.SetActive (false);
 		//pausePanel.SetActive (false);
+	}
+	private IEnumerator pauseToAudioTransition()
+	{
+		for (int i = pauseButtons.Count - 1;i >= 0;i--) {
+			pauseButtons[i].SetBool ("isHidden", true);
+		}
+		yield return new WaitForSecondsRealtime (0.5f);
+		audioPanel.GetComponent<Animator> ().SetBool ("isHidden", false);
+	}
+	private IEnumerator audioToPauseTransition()
+	{
+		audioPanel.GetComponent<Animator> ().SetBool ("isHidden", true);
+		yield return new WaitForSecondsRealtime (0.5f);
+		for (int i = pauseButtons.Count - 1;i >= 0;i--) {
+			pauseButtons[i].SetBool ("isHidden", false);
+		}
 	}
 	public void AudioPanelBackButtonClick()
 	{
 		AudioInfo audioInfo = new AudioInfo (audioToggle.isOn, audioSlider.value, musicSlider.value, effectsSlider.value);
 		PlayerPrefs.SetString ("AUDIO", JsonUtility.ToJson (audioInfo));
 
-		Background.Translate (new Vector3 (0, -6.0f, 0), Space.World);
-		audioPanel.SetActive (false);
-		mainUIPanel.SetActive (true);
-		pausePanel.SetActive (true);
+		StartCoroutine (audioToPauseTransition());
+
+		//Background.Translate (new Vector3 (0, -6.0f, 0), Space.World);
+		//audioPanel.SetActive (false);
+		//mainUIPanel.SetActive (true);
+		//pausePanel.SetActive (true);
 	}
 	public void onMusicSliderValueChanged()
 	{

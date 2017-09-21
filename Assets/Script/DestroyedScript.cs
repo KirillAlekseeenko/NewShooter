@@ -20,7 +20,7 @@ public class DestroyedScript : MonoBehaviour {
 
         foreach (Collider hit in hit_colliders)
         {
-            hit.attachedRigidbody.AddExplosionForce(explosionForce, explosionSite, explosionRadius, 0, ForceMode.Impulse);
+            hit.attachedRigidbody.AddExplosionForce(explosionForce, explosionSite, explosionRadius, 1.0f, ForceMode.Impulse);
         }
     }
 	
