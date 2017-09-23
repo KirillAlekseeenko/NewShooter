@@ -55,7 +55,7 @@ public class EnemyScript : MonoBehaviour {
 		switch (type) {
 		case EnemyType.Basic:
 			{
-				transform.Translate(Vector3.back * Time.deltaTime * enemySpeed);
+				transform.Translate(Vector3.back * Time.deltaTime * enemySpeed, Space.World);
 				transform.rotation = Quaternion.LookRotation (Vector3.back);
 				break;
 			}
@@ -64,11 +64,11 @@ public class EnemyScript : MonoBehaviour {
 				time -= Time.deltaTime;
 				var border = Camera.main.GetComponent<MainScript> ().SpawnEnemyBorder;
 				if (direction == Direction.Left) {
-					transform.Translate (Vector3.ClampMagnitude (new Vector3 (-1, 0, -1) * enemySpeed, enemySpeed) * Time.deltaTime);
+					transform.Translate (Vector3.ClampMagnitude (new Vector3 (-1, 0, -1) * enemySpeed, enemySpeed) * Time.deltaTime, Space.World);
 					transform.rotation = Quaternion.LookRotation (new Vector3 (-1, 0, -1));
 				} else {
 					transform.rotation = Quaternion.LookRotation (new Vector3 (1, 0, -1));
-					transform.Translate (Vector3.ClampMagnitude (new Vector3 (1, 0, -1) * enemySpeed, enemySpeed) * Time.deltaTime);
+					transform.Translate (Vector3.ClampMagnitude (new Vector3 (1, 0, -1) * enemySpeed, enemySpeed) * Time.deltaTime, Space.World);
 				}
 					
 				if (Mathf.Abs (transform.localPosition.x) >= border) {

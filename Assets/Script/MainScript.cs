@@ -46,6 +46,8 @@ public class MainScript : MonoBehaviour {
 	public Button nextButton;
 	[SerializeField]
 	private Button pauseButton;
+	public Button RightButton;
+	public Button LeftButton;
 
 	public Text scoreText;
 	public Text timeText;
@@ -266,8 +268,11 @@ public class MainScript : MonoBehaviour {
 	private void pause()
 	{
 		pauseButton.gameObject.SetActive (false);
+		RightButton.gameObject.SetActive (false);
+		LeftButton.gameObject.SetActive (false);
 		Time.timeScale = 0;
 		pausePanel.GetComponent<Animator> ().SetBool ("isHidden", false);
+
 	}
 	private IEnumerator unpause()
 	{
@@ -275,6 +280,8 @@ public class MainScript : MonoBehaviour {
 		yield return new WaitForSecondsRealtime (0.5f);
 		Time.timeScale = 1;
 		pauseButton.gameObject.SetActive (true);
+		RightButton.gameObject.SetActive (true);
+		LeftButton.gameObject.SetActive (true);
 	}
 	private void finish()
 	{

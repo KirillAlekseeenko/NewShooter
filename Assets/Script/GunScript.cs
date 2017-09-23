@@ -12,16 +12,66 @@ public class GunScript : MonoBehaviour {
     public float fireRate;
     public string inputName;
     private float nextFire;
+
+	private float catet = 0.82f; // DANGER!!
+
+	//reflection
+
+	public GameObject laserReflection;
+	public GameObject wallReflection;
+	public bool isRight;
+	private bool isReflectionOn = false;
     
 	// Use this for initialization
 	void Start () {
         nextFire = 0;
 
-
 	}
 
 	// Update is called once per frame
 	void Update () {
+		// reflection
+		RaycastHit hitinfo;
+		Vector3 direction = bulletSpawn.transform.position - transform.position;
+		if (Physics.Raycast (new Ray (transform.position, direction), out hitinfo, 3.0f) && hitinfo.collider.gameObject.tag == "wall") {
+			//float catet = (transform.position - wallReflection.transform.position).magnitude;
+			float hypo = hitinfo.distance;
+
+			if(isRight)
+				Debug.Log ((hypo).ToString ());
+
+			Vector3 contactPoint = hitinfo.point;
+
+			float angle = Mathf.Acos (catet / hypo) * Mathf.Rad2Deg;
+
+
+
+			if (contactPoint.z - wallReflection.transform.position.z > 0 && !isRight)
+				angle = -angle;
+			if (contactPoint.z - wallReflection.transform.position.z < 0 && isRight)
+				angle = -angle;
+			
+			if (!isReflectionOn) {
+				isReflectionOn = true;
+				laserReflection.SetActive (true);
+			}
+
+			laserReflection.transform.position = contactPoint;
+
+			float x = laserReflection.transform.rotation.eulerAngles.x;
+			float z = laserReflection.transform.rotation.eulerAngles.z;
+			laserReflection.transform.eulerAngles = new Vector3 (x, angle, z);
+			//if (isRight)
+				//Debug.Log (laserReflection.transform.eulerAngles.ToString ());
+
+		} else {
+			if (isReflectionOn) {
+				isReflectionOn = false;
+				laserReflection.SetActive (false);
+			}
+		}
+			
+
         nextFire += Time.deltaTime;
 		var _fillerSize = 1 - nextFire / fireRate;
 		if (_fillerSize < 0)
