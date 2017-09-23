@@ -21,7 +21,7 @@ public class GunScript : MonoBehaviour {
 	}
 
 	// Update is called once per frame
-	void FixedUpdate () {
+	void Update () {
         nextFire += Time.deltaTime;
 		var _fillerSize = 1 - nextFire / fireRate;
 		if (_fillerSize < 0)

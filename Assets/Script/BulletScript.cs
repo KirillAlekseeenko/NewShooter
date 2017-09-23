@@ -47,6 +47,14 @@ public class BulletScript : MonoBehaviour {
 			//Destroy (EnemyInAdvance);
 		}
 	}
+	void OnCollisionEnter(Collision collision)
+	{
+		if (collision.gameObject.tag == "bullet") {
+			Destroy (this.gameObject);
+			Destroy (collision.gameObject);
+			GameObject explosion = Instantiate (Explosion, transform.position, Quaternion.identity) as GameObject;
+		}
+	}
 
 
 	void OnCollisionExit(Collision other){
