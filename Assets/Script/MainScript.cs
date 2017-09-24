@@ -251,7 +251,7 @@ public class MainScript : MonoBehaviour {
 			var jsonString = PlayerPrefs.GetString ("SAVE");
 			List<LevelManagerScript.Level> levelList = JsonUtility.FromJson<LevelManagerScript.LevelListWrapper> (jsonString).levelList;
 			int next = LevelManagerScript.currentLevel.number;
-			LevelManagerScript.currentLevel = new LevelManagerScript.Level (levelList [next - 1]);
+			LevelManagerScript.currentLevel = new LevelManagerScript.Level (levelList [next]);
 		}
 
 		unsubscribeFromEvents ();

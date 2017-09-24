@@ -13,7 +13,7 @@ public class GunScript : MonoBehaviour {
     public string inputName;
     private float nextFire;
 
-	private float catet = 0.82f; // DANGER!!
+	private float catet = 0.822f; // DANGER!!
 
 	//reflection
 

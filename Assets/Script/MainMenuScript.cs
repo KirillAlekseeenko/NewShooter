@@ -54,6 +54,19 @@ public class MainMenuScript : MonoBehaviour {
 
 
 		}
+		//TEST
+
+		if (PlayerPrefs.HasKey ("TEST") && PlayerPrefs.GetString("TEST") != "{}") {
+
+			var jsonString = PlayerPrefs.GetString ("TEST");
+
+			LevelManagerScript.Level level = JsonUtility.FromJson<LevelManagerScript.Level> (jsonString);
+
+			EnemySizeTextBox.text = level.enemySize.ToString ();
+			EnemySpeedTextBox.text = level.enemySpeed.ToString ();
+			SpawnRateTextBox.text = level.spawnRate.ToString ();
+			EnemyTypeDropdown.value = (int)level.enemyType;
+		} 
 	}
 
 	// animations
@@ -122,7 +135,8 @@ public class MainMenuScript : MonoBehaviour {
 	}
 	public void infoButtonClick()
 	{
-		StartCoroutine(mainPanelSlideOut (transition_time, InfoPanel.SetActive, true));
+		StartCoroutine(mainPanelSlideOut (transition_time,	testPanel.SetActive, true));
+		//StartCoroutine(mainPanelSlideOut (transition_time, InfoPanel.SetActive, true));!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		//MainPanel.SetActive (false);
 		//InfoPanel.SetActive (true);
 	}
@@ -170,6 +184,18 @@ public class MainMenuScript : MonoBehaviour {
 
 	//Info Panel
 	 
+
+	//TestUI
+	[Header("TestUI")]
+
+	public GameObject testPanel;
+	public InputField EnemySizeTextBox;
+	public InputField EnemySpeedTextBox;
+	public InputField SpawnRateTextBox;
+	public Dropdown EnemyTypeDropdown;
+
+
+
 		
 }
 

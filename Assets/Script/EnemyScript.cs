@@ -183,7 +183,7 @@ public class EnemyScript : MonoBehaviour {
 			velocity = Vector3.back;
 	}
 
-	public enum EnemyType{Basic, Advanced, Smart};
+	public enum EnemyType : int{Basic = 0, Advanced = 1, Smart = 2};
 
 }
 

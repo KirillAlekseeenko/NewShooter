@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System;
 
 public class LevelManagerScript : MonoBehaviour {
 
@@ -25,6 +26,7 @@ public class LevelManagerScript : MonoBehaviour {
 		public EnemyScript.EnemyType enemyType;
 
 		public Button.ButtonClickedEvent onButtonClicked;
+
 
 		public Level(Level other)
 		{
@@ -167,37 +169,7 @@ public class LevelManagerScript : MonoBehaviour {
 		PlayerPrefs.SetString("SAVE", JsonUtility.ToJson(new LevelListWrapper(initialLevelList)));
 		levelList = new List<Level>(initialLevelList);
 	}
-
-	/*public void LoadLevel1()
-	{
 		
-	}
-	public void LoadLevel2()
-	{
-
-	}
-	public void LoadLevel3()
-	{
-
-	}
-	public void LoadLevel4()
-	{
-
-	}
-	public void LoadLevel5()
-	{
-
-	}
-	public void LoadLevel6()
-	{
-
-	}
-	public void LoadLevel7()
-	{
-
-	}*/
-
-
 
 	// Use this for initialization
 	void Start () {
@@ -207,9 +179,38 @@ public class LevelManagerScript : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	//void Update () {
 	
+	//}
+
+
+	// TEST
+
+	[Header("TestUI")]
+	public InputField EnemySizeTextBox;
+	public InputField EnemySpeedTextBox;
+	public InputField SpawnRateTextBox;
+	public Dropdown EnemyTypeDropdown;
+
+
+	public void RunTestButtonCLick()
+	{
+		currentLevel = new Level (levelList [0]);
+		currentLevel.enemySize = Convert.ToSingle (EnemySizeTextBox.text);
+		currentLevel.enemySpeed = Convert.ToSingle (EnemySpeedTextBox.text);
+		currentLevel.spawnRate = Convert.ToSingle (SpawnRateTextBox.text);
+
+		currentLevel.enemyType = (EnemyScript.EnemyType)EnemyTypeDropdown.value;
+
+		PlayerPrefs.SetString("TEST", JsonUtility.ToJson(new Level(currentLevel)));
+		//Debug.Log (JsonUtility.ToJson (new LevelListWrapper(initialLevelList)));
+
+		StartCoroutine(SceneFadeOut());
 	}
+
+
+
+
 }
 
 
