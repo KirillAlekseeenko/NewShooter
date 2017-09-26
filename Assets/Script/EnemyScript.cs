@@ -12,6 +12,10 @@ public class EnemyScript : MonoBehaviour {
 	[SerializeField]
 	public GameObject Model;
 	private Vector3 velocity;
+	private Vector3 actualVelocity;
+	private float turnSpeed = 15.0f;
+	private bool outOfBorder = false;
+	private bool isTurning = false;
 
 
 	private enum Direction{Right, Left};
@@ -32,6 +36,12 @@ public class EnemyScript : MonoBehaviour {
 			else
 				direction = Direction.Left;
 
+			if (direction == Direction.Left) {
+				velocity = new Vector3 (-1, 0, -1);
+			} else {
+				velocity = new Vector3 (1, 0, -1);
+			}
+
 			changeDirection ();
 			time = changeDirectionTime;
 		}
@@ -39,6 +49,8 @@ public class EnemyScript : MonoBehaviour {
 			velocity = Vector3.back;
 			//EnemyInAdvance.transform.localPosition = velocity.normalized / 2;
 		}
+
+		actualVelocity = velocity;
         
 	}
 
@@ -61,7 +73,8 @@ public class EnemyScript : MonoBehaviour {
 			}
 		case EnemyType.Advanced:
 			{ 
-				time -= Time.deltaTime;
+				
+				/*
 				var border = Camera.main.GetComponent<MainScript> ().SpawnEnemyBorder;
 				if (direction == Direction.Left) {
 					transform.Translate (Vector3.ClampMagnitude (new Vector3 (-1, 0, -1) * enemySpeed, enemySpeed) * Time.deltaTime, Space.World);
@@ -78,17 +91,69 @@ public class EnemyScript : MonoBehaviour {
 				if (time <= 0) {
 					time = changeDirectionTime;
 					changeDirection ();
+				}*/
+				time -= Time.deltaTime;
+				var border = Camera.main.GetComponent<MainScript> ().SpawnEnemyBorder;
+				if (direction == Direction.Left) {
+					velocity = new Vector3 (-1, 0, -1);
+				} else {
+					velocity = new Vector3 (1, 0, -1);
 				}
+
+				if (Mathf.Abs (transform.localPosition.x) >= border) {
+					//Debug.Log ("border");
+
+					if (!isTurning)
+						changeDirection ();
+					
+					outOfBorder = true;
+					time = changeDirectionTime;
+				} else if (outOfBorder)
+					outOfBorder = false;
+
+
+				if (time <= 0) {
+					time = changeDirectionTime;
+					if(flipCoin())
+						changeDirection ();
+				}
+
+
+				transform.Translate(actualVelocity.normalized * Time.deltaTime * enemySpeed, Space.World);
+				transform.rotation = Quaternion.LookRotation (actualVelocity.normalized);
 
 				break;
 			}
 		case EnemyType.Smart:
 			{
-				transform.Translate(velocity.normalized * Time.deltaTime * enemySpeed, Space.World);
-				transform.rotation = Quaternion.LookRotation (velocity.normalized);
+				transform.Translate(actualVelocity.normalized * Time.deltaTime * enemySpeed, Space.World);
+				transform.rotation = Quaternion.LookRotation (actualVelocity.normalized);
 				break;
 			}
 		}
+
+		if (!actualVelocity.normalized.Equals (velocity.normalized)) {
+			if (!isTurning)
+				isTurning = true;
+			float angle;
+			Vector3 axis;
+
+			Quaternion dif = Quaternion.FromToRotation (actualVelocity, velocity);
+			dif.ToAngleAxis (out angle, out axis);
+
+			if (angle > 360.0f - angle)
+				axis = -axis;
+
+			//Debug.Log (angle.ToString());
+
+			if (angle < turnSpeed)
+				actualVelocity = velocity;
+			else {
+				actualVelocity = Quaternion.AngleAxis (turnSpeed, axis) * actualVelocity;
+			}
+
+		} else if (isTurning)
+			isTurning = false;
 
         	
     }
@@ -101,6 +166,8 @@ public class EnemyScript : MonoBehaviour {
 
 	private void changeDirection()
 	{
+		if (outOfBorder)
+			return;
 		if (direction == Direction.Left) {
 			//transform.Translate (Vector3.ClampMagnitude (new Vector3 (1, 0, -1) * enemySpeed, enemySpeed) * Time.deltaTime);
 			direction = Direction.Right;
@@ -112,11 +179,11 @@ public class EnemyScript : MonoBehaviour {
 	}
 	private bool flipCoin()
 	{
-		int n = Random.Range (0, 2);
+		int n = Random.Range (0, 3);
 		if (n == 0)
-			return false;
-		else
 			return true;
+		else
+			return false;
 	}
 	public void dodgeBullet(Vector3 trajectory, Vector3 originToPosition)
 	{

@@ -18,12 +18,14 @@ public class MainScript : MonoBehaviour {
 
 	private float timeToSpawn;
 	private int score;
-	private float time;
-	private float timeUpdate = 0.1f;
+	//private float time;
+	//private float timeUpdate = 0.1f;
+	private int remain;
+	private int spawned;
 	private bool finished = false;
 
 	// balance
-	public float timeToTheEnd;
+	public int initialNumberOfEnemies;
 	private float SpawnTime;
 	public int initialScore;
 	public int addToScore;
@@ -50,7 +52,7 @@ public class MainScript : MonoBehaviour {
 	public Button LeftButton;
 
 	public Text scoreText;
-	public Text timeText;
+	public Text remainText;
 
 
 	//audio
@@ -74,7 +76,8 @@ public class MainScript : MonoBehaviour {
 		SpawnTime = LevelManagerScript.currentLevel.spawnRate;
 		Time.timeScale = 1;
 		timeToSpawn = SpawnTime;
-		time = timeToTheEnd;
+		remain = initialNumberOfEnemies;
+		spawned = initialNumberOfEnemies;
 		score = initialScore;
 		updateScoreLabel ();
 		BorderScript.onMiss += reduceScore;
@@ -107,24 +110,18 @@ public class MainScript : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-        if (timeToSpawn > 0)
+		if (timeToSpawn > 0 && spawned > 0)
         {
             timeToSpawn -= Time.deltaTime;
-			time -= Time.deltaTime;
-			timeUpdate -= Time.deltaTime;
 
-			if (timeUpdate <= 0) {
-				updateTimeLabel ();
-				timeUpdate = 0.1f;
-			}
-
-			if (time <= 0 && !finished) {
+			if (remain <= 0 && !finished) {
 				finished = true;
-				timeIsUp ();
+				nothingIsRemaining ();
 			}
         }
         else
         {
+			spawned--;
 			SpawnEnemy (LevelManagerScript.currentLevel.enemyType);
         }
         
@@ -144,22 +141,26 @@ public class MainScript : MonoBehaviour {
 		else
 			scoreText.text = "Score: 0";
 	}
-	public void updateTimeLabel()
+	public void updateRemainLabel()
 	{
-		timeText.text = time.ToString ();
+		remainText.text = remain.ToString ();
 	}
 
 	public void reduceScore()
 	{
+		remain--;
+		updateRemainLabel ();
 		score -= takeFromScore;
 		updateScoreLabel ();
 	}
 	public void addScore()
 	{
+		remain--;
+		updateRemainLabel ();
 		score += addToScore;
 		updateScoreLabel ();	
 	}
-	public void timeIsUp()
+	public void nothingIsRemaining()
 	{
 		// ...bring up achieves
 		List<LevelManagerScript.Level> levelList;

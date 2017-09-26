@@ -5,6 +5,7 @@ public class GunScript : MonoBehaviour {
 
     public int speed = 60;
     public float bulletSpeed;
+	private EnemyScript.EnemyType enemyType;
     public GameObject bullet;
     public GameObject bulletSpawn;
 	public GameObject reloadBar;
@@ -14,6 +15,7 @@ public class GunScript : MonoBehaviour {
     private float nextFire;
 
 	private float catet = 0.822f; // DANGER!!
+	private float laserLength = 20.0f;
 
 	//reflection
 
@@ -25,6 +27,7 @@ public class GunScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         nextFire = 0;
+		enemyType = LevelManagerScript.currentLevel.enemyType;
 
 	}
 
@@ -34,6 +37,34 @@ public class GunScript : MonoBehaviour {
 		RaycastHit hitinfo;
 		Vector3 direction = bulletSpawn.transform.position - transform.position;
 		if (Physics.Raycast (new Ray (transform.position, direction), out hitinfo, 3.0f) && hitinfo.collider.gameObject.tag == "wall") {
+
+			Vector3 normal;
+
+			if (direction.x > 0)
+				normal = Vector3.left;
+			else
+				normal = Vector3.right;
+
+			Vector3 reflectDirection = Vector3.Reflect (direction, normal);
+
+			if (!isReflectionOn) {
+				isReflectionOn = true;
+				laserReflection.SetActive (true);
+			}
+
+
+
+			laserReflection.GetComponent<LineRenderer> ().SetPosition (0, hitinfo.point);
+			laserReflection.GetComponent<LineRenderer> ().SetPosition (1, hitinfo.point + reflectDirection * laserLength);
+
+		} else {
+			if (isReflectionOn) {
+				isReflectionOn = false;
+				laserReflection.SetActive (false);
+			}
+		}
+
+		/*if (Physics.Raycast (new Ray (transform.position, direction), out hitinfo, 3.0f) && hitinfo.collider.gameObject.tag == "wall") {
 			//float catet = (transform.position - wallReflection.transform.position).magnitude;
 			float hypo = hitinfo.distance;
 
@@ -70,10 +101,10 @@ public class GunScript : MonoBehaviour {
 				laserReflection.SetActive (false);
 			}
 		}
-			
+		*/	
 
         nextFire += Time.deltaTime;
-		var _fillerSize = 1 - nextFire / fireRate;
+		var _fillerSize = nextFire / fireRate;
 		if (_fillerSize < 0)
 			_fillerSize = 0.0f;
         transform.Rotate(Vector3.up * Time.deltaTime * speed);
@@ -92,22 +123,25 @@ public class GunScript : MonoBehaviour {
 			Vector3 velocity = bulletSpawn.transform.position - transform.position;
 			newBullet.GetComponent<Rigidbody> ().velocity = velocity * bulletSpeed;
 
-			RaycastHit[] hitsinfo;
-			hitsinfo = Physics.RaycastAll (bulletSpawn.transform.position, velocity);
-			for (int i = 0; i < hitsinfo.Length; i++) {
+			if (enemyType == EnemyScript.EnemyType.Smart) {
 
-				RaycastHit hitinfo = hitsinfo [i];
+				RaycastHit[] hitsinfo;
+				hitsinfo = Physics.RaycastAll (bulletSpawn.transform.position, velocity);
+				for (int i = 0; i < hitsinfo.Length; i++) {
 
-				if (hitinfo.collider.tag == "enemyinadvance") {
-					Debug.Log ("Dodge");
+					RaycastHit hitinfo = hitsinfo [i];
 
-					Vector3 traj = newBullet.GetComponent<Rigidbody> ().velocity;
-					//Debug.DrawRay (bulletSpawn.transform.position, velocity, Color.red, 30.0f);
+					if (hitinfo.collider.tag == "enemyinadvance") {
+						Debug.Log ("Dodge");
 
-					Vector3 originToTarget = hitinfo.transform.position - bulletSpawn.transform.position;
-					//Debug.DrawLine(bulletSpawn.transform.position, hitinfo.transform.position, Color.blue, 30.0f);
+						Vector3 traj = newBullet.GetComponent<Rigidbody> ().velocity;
+						//Debug.DrawRay (bulletSpawn.transform.position, velocity, Color.red, 30.0f);
 
-					hitinfo.collider.gameObject.GetComponentInParent<EnemyScript> ().dodgeBullet (traj, originToTarget);
+						Vector3 originToTarget = hitinfo.transform.position - bulletSpawn.transform.position;
+						//Debug.DrawLine(bulletSpawn.transform.position, hitinfo.transform.position, Color.blue, 30.0f);
+
+						hitinfo.collider.gameObject.GetComponentInParent<EnemyScript> ().dodgeBullet (traj, originToTarget);
+					}
 				}
 			}
 			
