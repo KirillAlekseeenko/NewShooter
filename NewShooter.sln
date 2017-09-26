@@ -1,7 +1,7 @@
+﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2008
-
-Project("{8BCC8712-C726-818B-4F51-1A641F09E6E6}") = "NewShooter", "Assembly-CSharp.csproj", "{33E4A91A-13B1-F3EA-A38D-D1374BEEB814}"
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewShooter", "Assembly-CSharp.csproj", "{33E4A91A-13B1-F3EA-A38D-D1374BEEB814}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

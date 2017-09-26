@@ -110,20 +110,20 @@ public class MainScript : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-		if (timeToSpawn > 0 && spawned > 0)
+		if (timeToSpawn > 0)
         {
             timeToSpawn -= Time.deltaTime;
-
-			if (remain <= 0 && !finished) {
-				finished = true;
-				nothingIsRemaining ();
+        }
+        else 
+			if (spawned > 0) {
+				spawned--;
+				SpawnEnemy (LevelManagerScript.currentLevel.enemyType);
 			}
-        }
-        else
-        {
-			spawned--;
-			SpawnEnemy (LevelManagerScript.currentLevel.enemyType);
-        }
+
+		if (remain <= 0 && !finished) {
+			finished = true;
+			nothingIsRemaining ();
+		}
         
     }
 

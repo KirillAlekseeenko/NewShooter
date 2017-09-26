@@ -31,6 +31,7 @@ public class EnemyScript : MonoBehaviour {
 		enemySpeed = LevelManagerScript.currentLevel.enemySpeed;
 		transform.localScale = transform.localScale * size * LevelManagerScript.currentLevel.enemySize;
 		if (type == EnemyType.Advanced) {
+			turnSpeed = 10.0f;
 			if (flipCoin ())
 				direction = Direction.Right;
 			else
@@ -57,8 +58,9 @@ public class EnemyScript : MonoBehaviour {
 	void OnTriggerEnter(Collider other)
 	{
 		if (other.tag == "wall") {
+			Debug.Log ("enemy triggers wall");
 			Vector3 course = new Vector3 ((transform.position - other.transform.position).x, 0, 0).normalized * enemySpeed;
-			StartCoroutine(correctCourse(course, 1.0f));
+			StartCoroutine(correctCourse(course, 2.0f));
 		}
 	}
 	
@@ -243,6 +245,10 @@ public class EnemyScript : MonoBehaviour {
 	public IEnumerator correctCourse(Vector3 newCourse, float time)
 	{
 		velocity = newCourse;
+
+		if (type == EnemyType.Advanced) {
+			outOfBorder = true;
+		}
 
 		yield return new WaitForSeconds (time);
 		
