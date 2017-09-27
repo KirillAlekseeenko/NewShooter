@@ -70,6 +70,9 @@ public class MainScript : MonoBehaviour {
 	public Animator transitionImage;
 	public List<Animator> pauseButtons;
 
+	//private int fontSize = 44; // POTENTIAL DANGER
+	private bool isChanging = false; // label resize
+
 
     // Use this for initialization
     void Start () {
@@ -134,16 +137,29 @@ public class MainScript : MonoBehaviour {
 		_enemy.GetComponent<EnemyScript> ().setType (type);
 	}
 
-	public void updateScoreLabel()
+	public void updateScoreLabel() // 1 - green, -1 - red
 	{
 		if(score > 0)
-			scoreText.text = "Score: " + score.ToString();
+			scoreText.text = score.ToString();
 		else
-			scoreText.text = "Score: 0";
+			scoreText.text = "0";
+	}
+	public void updateScoreLabel(int color) // 1 - green, -1 - red
+	{
+		if(score > 0)
+			scoreText.text = score.ToString();
+		else
+			scoreText.text = "0";
+
+		if(!isChanging)
+			StartCoroutine(LabelStretchAndShrink(scoreText, 0.2f, 1.5f, 15, color));
 	}
 	public void updateRemainLabel()
 	{
 		remainText.text = remain.ToString ();
+		if (remain < 4) { // 3 2 1 0
+			StartCoroutine(LabelStretchAndShrink(remainText, 0.5f, 1.5f, 15, 0));
+		}
 	}
 
 	public void reduceScore()
@@ -151,14 +167,17 @@ public class MainScript : MonoBehaviour {
 		remain--;
 		updateRemainLabel ();
 		score -= takeFromScore;
-		updateScoreLabel ();
+		updateScoreLabel (-1);
+
 	}
 	public void addScore()
 	{
 		remain--;
 		updateRemainLabel ();
 		score += addToScore;
-		updateScoreLabel ();	
+		updateScoreLabel (1);
+
+		//StartCoroutine(LabelStretchAndShrink(scoreText, 0.5f, 1.5f, 15));
 	}
 	public void nothingIsRemaining()
 	{
@@ -194,7 +213,7 @@ public class MainScript : MonoBehaviour {
 
 
 
-			resultScoreText.text = "Score: " + score.ToString ();
+			resultScoreText.text = "Score: " + scoreText.text;
 
 			switch (stars) {
 
@@ -381,6 +400,36 @@ public class MainScript : MonoBehaviour {
 		transitionImage.SetBool ("faded", true);
 		yield return new WaitForSeconds (0.5f);
 		f (arg);
+	}
+
+
+	public IEnumerator LabelStretchAndShrink(Text label, float time, float stretchDegree, int steps, int color) // green or red, 1 or -1
+	{
+		isChanging = true;
+		
+		scoreText.GetComponent<Animator> ().SetInteger ("add", color);
+
+		int initialFontSize = label.fontSize;
+		for (int i = 1; i <= steps; i++) {
+			yield return new WaitForSecondsRealtime (time / (2 * steps));
+			//yield return null;
+			float size = initialFontSize * (1 + (stretchDegree - 1.0f) * (float)i / steps);
+			label.fontSize = Mathf.RoundToInt (Mathf.Clamp(size, initialFontSize, initialFontSize * stretchDegree));
+
+		}
+
+
+		for (int i = steps; i >= 0; i--) {
+			yield return new WaitForSecondsRealtime (time / (2 * steps));
+			//yield return null;
+			float size = initialFontSize * (1 + (stretchDegree - 1.0f) * (float)i / steps);
+			label.fontSize = Mathf.RoundToInt (Mathf.Clamp(size, initialFontSize, initialFontSize * stretchDegree));
+		}
+
+		scoreText.GetComponent<Animator> ().SetInteger ("add", 0);
+
+		isChanging = false;
+
 	}
 
 }

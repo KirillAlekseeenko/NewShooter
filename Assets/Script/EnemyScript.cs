@@ -251,7 +251,12 @@ public class EnemyScript : MonoBehaviour {
 		}
 
 		yield return new WaitForSeconds (time);
+
 		
+		if (type == EnemyType.Advanced) {
+			outOfBorder = false;
+		}
+
 		if(velocity.Equals(newCourse))
 			velocity = Vector3.back;
 	}

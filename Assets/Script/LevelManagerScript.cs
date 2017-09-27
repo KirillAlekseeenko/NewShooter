@@ -99,8 +99,8 @@ public class LevelManagerScript : MonoBehaviour {
 			levelButtons.Add (newButton);
 
 			newButton.GetComponent<ButtonScript> ().LevelText.text = level.number.ToString ();
-			newButton.GetComponent<ButtonScript> ().LevelText.font = font;
-			newButton.GetComponent<ButtonScript> ().LevelText.color = Color.black;
+			//newButton.GetComponent<ButtonScript> ().LevelText.font = font;
+			//newButton.GetComponent<ButtonScript> ().LevelText.color = Color.black;
 
 			newButton.transform.localScale = Vector3.one;
 
