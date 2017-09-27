@@ -10,18 +10,21 @@ public class EnemyScript : MonoBehaviour {
 	[SerializeField]
 	private GameObject EnemyInAdvance;
 	[SerializeField]
-	public GameObject Model;
 	private Vector3 velocity;
 	private Vector3 actualVelocity;
 	private float turnSpeed = 15.0f;
 	private bool outOfBorder = false;
-	private bool isTurning = false;
+	public bool isTurning = false;
 
 
 	private enum Direction{Right, Left};
 	private Direction direction;
 
 	private EnemyType type;
+
+	//animation
+
+	public Animator Model;
     
 	//public delegate void hitAction();
 	//public static event hitAction onHit;
@@ -135,18 +138,28 @@ public class EnemyScript : MonoBehaviour {
 		}
 
 		if (!actualVelocity.normalized.Equals (velocity.normalized)) {
-			if (!isTurning)
-				isTurning = true;
+			
 			float angle;
 			Vector3 axis;
 
 			Quaternion dif = Quaternion.FromToRotation (actualVelocity, velocity);
+
 			dif.ToAngleAxis (out angle, out axis);
+
+			if (!isTurning) {
+				if (axis.y >= 0)
+					Model.SetInteger ("right", 1);
+				else
+					Model.SetInteger ("right", -1);
+
+				isTurning = true;
+			}
+				
 
 			if (angle > 360.0f - angle)
 				axis = -axis;
 
-			//Debug.Log (angle.ToString());
+			//Debug.Log (angle.ToString() + ": " + axis.ToString());
 
 			if (angle < turnSpeed)
 				actualVelocity = velocity;
@@ -154,8 +167,11 @@ public class EnemyScript : MonoBehaviour {
 				actualVelocity = Quaternion.AngleAxis (turnSpeed, axis) * actualVelocity;
 			}
 
-		} else if (isTurning)
+		} else if (isTurning) {
+			Model.SetInteger ("right", 0);
 			isTurning = false;
+
+		}
 
         	
     }
