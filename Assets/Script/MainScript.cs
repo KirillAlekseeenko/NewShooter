@@ -85,6 +85,7 @@ public class MainScript : MonoBehaviour {
 		updateScoreLabel ();
 		BorderScript.onMiss += reduceScore;
 		BulletScript.onHit += addScore;
+		BulletScript.onFriendlyFire += reduceScore;
 
 
     }
@@ -93,6 +94,7 @@ public class MainScript : MonoBehaviour {
 	{
 		BorderScript.onMiss -= reduceScore;
 		BulletScript.onHit -= addScore;
+		BulletScript.onFriendlyFire -= reduceScore;
 	}
 	/*void onDestroy()
 	{
@@ -130,7 +132,7 @@ public class MainScript : MonoBehaviour {
         
     }
 
-	private void SpawnEnemy(EnemyScript.EnemyType type)
+	private void SpawnEnemy(EnemyScript.EnemyManeuver type)
 	{
 		timeToSpawn = SpawnTime;
 		Transform _enemy = Instantiate(Enemy, new Vector3(UnityEngine.Random.Range(-SpawnEnemyBorder, SpawnEnemyBorder), 0, SpawnHeight), Quaternion.Euler(new Vector3(0, 0, 0))) as Transform;

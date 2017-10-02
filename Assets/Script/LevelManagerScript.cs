@@ -23,7 +23,7 @@ public class LevelManagerScript : MonoBehaviour {
 		public float enemySpeed;
 		public float spawnRate;
 		public float enemySize;
-		public EnemyScript.EnemyType enemyType;
+		public EnemyScript.EnemyManeuver enemyType;
 
 		public Button.ButtonClickedEvent onButtonClicked;
 
@@ -200,7 +200,7 @@ public class LevelManagerScript : MonoBehaviour {
 		currentLevel.enemySpeed = Convert.ToSingle (EnemySpeedTextBox.text);
 		currentLevel.spawnRate = Convert.ToSingle (SpawnRateTextBox.text);
 
-		currentLevel.enemyType = (EnemyScript.EnemyType)EnemyTypeDropdown.value;
+		currentLevel.enemyType = (EnemyScript.EnemyManeuver)EnemyTypeDropdown.value;
 
 		PlayerPrefs.SetString("TEST", JsonUtility.ToJson(new Level(currentLevel)));
 		//Debug.Log (JsonUtility.ToJson (new LevelListWrapper(initialLevelList)));

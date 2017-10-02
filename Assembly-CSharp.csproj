@@ -47,6 +47,8 @@
   <ItemGroup>
      <Compile Include="Assets\ProgressBar\Script\ProgressBarBehaviour.cs" />
      <Compile Include="Assets\ProgressBar\Script\Utils.cs" />
+     <Compile Include="Assets\Script\ArmedScript.cs" />
+     <Compile Include="Assets\Script\ArmoredScript.cs" />
      <Compile Include="Assets\Script\BorderScript.cs" />
      <Compile Include="Assets\Script\BulletScript.cs" />
      <Compile Include="Assets\Script\ButtonScript.cs" />

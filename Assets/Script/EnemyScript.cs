@@ -7,23 +7,34 @@ public class EnemyScript : MonoBehaviour {
 	public float size;
 	private float time;
 
+
+
+
 	[SerializeField]
 	private GameObject EnemyInAdvance;
 	[SerializeField]
 	private Vector3 velocity;
 	private Vector3 actualVelocity;
-	private float turnSpeed = 15.0f;
+
+	// advanced enemy
 	private bool outOfBorder = false;
-	public bool isTurning = false;
-
-
 	private enum Direction{Right, Left};
 	private Direction direction;
 
-	private EnemyType type;
+	private float border;
 
-	//animation
+	// static enemy
+	private float stopPlace = 4.5f; // place, where enemy stops and begin to shoot, shoud be less than SpawnHeight
+	private bool isStopped = false;
 
+	// smooth turn
+	public bool isTurning = false;
+	private float turnSpeed = 15.0f;
+
+	private EnemyManeuver type;
+
+
+	//wheel animation
 	public Animator Model;
     
 	//public delegate void hitAction();
@@ -31,9 +42,10 @@ public class EnemyScript : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		border = Camera.main.GetComponent<MainScript> ().SpawnEnemyBorder;
 		enemySpeed = LevelManagerScript.currentLevel.enemySpeed;
 		transform.localScale = transform.localScale * size * LevelManagerScript.currentLevel.enemySize;
-		if (type == EnemyType.Advanced) {
+		if (type == EnemyManeuver.Advanced) {
 			turnSpeed = 10.0f;
 			if (flipCoin ())
 				direction = Direction.Right;
@@ -47,9 +59,10 @@ public class EnemyScript : MonoBehaviour {
 			}
 
 			changeDirection ();
+			//velocity = Vector3.back;
 			time = changeDirectionTime;
 		}
-		if (type == EnemyType.Smart) {
+		if (type == EnemyManeuver.Smart || type == EnemyManeuver.Basic || type == EnemyManeuver.Static) {
 			velocity = Vector3.back;
 			//EnemyInAdvance.transform.localPosition = velocity.normalized / 2;
 		}
@@ -70,13 +83,13 @@ public class EnemyScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		switch (type) {
-		case EnemyType.Basic:
+		case EnemyManeuver.Basic:
 			{
-				transform.Translate(Vector3.back * Time.deltaTime * enemySpeed, Space.World);
+				transform.Translate(actualVelocity.normalized * Time.deltaTime * enemySpeed, Space.World);
 				transform.rotation = Quaternion.LookRotation (Vector3.back);
 				break;
 			}
-		case EnemyType.Advanced:
+		case EnemyManeuver.Advanced:
 			{ 
 				
 				/*
@@ -98,21 +111,22 @@ public class EnemyScript : MonoBehaviour {
 					changeDirection ();
 				}*/
 				time -= Time.deltaTime;
-				var border = Camera.main.GetComponent<MainScript> ().SpawnEnemyBorder;
 				if (direction == Direction.Left) {
 					velocity = new Vector3 (-1, 0, -1);
 				} else {
 					velocity = new Vector3 (1, 0, -1);
 				}
 
-				if (Mathf.Abs (transform.localPosition.x) >= border) {
+				if (Mathf.Abs (transform.position.x) >= border) {
 					//Debug.Log ("border");
-
-					if (!isTurning)
-						changeDirection ();
-					
-					outOfBorder = true;
-					time = changeDirectionTime;
+					if (!outOfBorder) {
+						if (transform.position.x > 0)
+							direction = Direction.Left;
+						else
+							direction = Direction.Right;
+						time = 2 * changeDirectionTime;
+						outOfBorder = true;
+					}
 				} else if (outOfBorder)
 					outOfBorder = false;
 
@@ -129,12 +143,46 @@ public class EnemyScript : MonoBehaviour {
 
 				break;
 			}
-		case EnemyType.Smart:
+		case EnemyManeuver.Smart:
 			{
 				transform.Translate(actualVelocity.normalized * Time.deltaTime * enemySpeed, Space.World);
 				transform.rotation = Quaternion.LookRotation (actualVelocity.normalized);
 				break;
 			}
+		case EnemyManeuver.Static:
+			{
+
+				if (direction == Direction.Left) {
+					velocity = new Vector3 (-1, 0, 0);
+				} else {
+					velocity = new Vector3 (1, 0, 0);
+				}
+					
+				if (!isStopped && transform.position.z < stopPlace) {
+					isStopped = true;
+
+					velocity = new Vector3 (1, 0, 0);
+				}
+
+				if (Mathf.Abs (transform.position.x) >= border) {
+					//Debug.Log ("border");
+					if (!outOfBorder) {
+						if (transform.position.x > 0)
+							direction = Direction.Left;
+						else
+							direction = Direction.Right;
+						outOfBorder = true;
+					}
+				} else if (outOfBorder)
+					outOfBorder = false;
+
+
+				transform.Translate(actualVelocity.normalized * Time.deltaTime * enemySpeed, Space.World);
+				transform.rotation = Quaternion.LookRotation (actualVelocity.normalized);
+
+				break;
+			}
+
 		}
 
 		if (!actualVelocity.normalized.Equals (velocity.normalized)) {
@@ -151,7 +199,7 @@ public class EnemyScript : MonoBehaviour {
 					Model.SetInteger ("right", 1);
 				else
 					Model.SetInteger ("right", -1);
-
+				Debug.Log ("turn");
 				isTurning = true;
 			}
 				
@@ -169,6 +217,7 @@ public class EnemyScript : MonoBehaviour {
 
 		} else if (isTurning) {
 			Model.SetInteger ("right", 0);
+			Debug.Log ("turn");
 			isTurning = false;
 
 		}
@@ -176,7 +225,7 @@ public class EnemyScript : MonoBehaviour {
         	
     }
 
-	public void setType(EnemyType _type)
+	public void setType(EnemyManeuver _type)
 	{
 		type = _type;
 	}
@@ -203,7 +252,7 @@ public class EnemyScript : MonoBehaviour {
 		else
 			return false;
 	}
-	public void dodgeBullet(Vector3 trajectory, Vector3 originToPosition)
+	public void dodgeBullet(Vector3 trajectory, Vector3 originToPosition) // smart
 	{
 		/*var yr = trajectory.x * enemySpeed / Mathf.Sqrt (Mathf.Pow (trajectory.x, 2.0f) + Mathf.Pow (trajectory.z, 2.0f));
 
@@ -258,27 +307,23 @@ public class EnemyScript : MonoBehaviour {
 		StartCoroutine(correctCourse(result, 1.0f));
 
 	}
-	public IEnumerator correctCourse(Vector3 newCourse, float time)
+	public IEnumerator correctCourse(Vector3 newCourse, float time) //
 	{
 		velocity = newCourse;
 
-		if (type == EnemyType.Advanced) {
-			outOfBorder = true;
-		}
-
 		yield return new WaitForSeconds (time);
 
-		
-		if (type == EnemyType.Advanced) {
-			outOfBorder = false;
-		}
-
-		if(velocity.Equals(newCourse))
+		if(velocity.Equals(newCourse) && type == EnemyManeuver.Smart)
 			velocity = Vector3.back;
+
+		if (velocity.Equals (newCourse) && type == EnemyManeuver.Advanced)
+			time = changeDirectionTime;
+		
 	}
 
-	public enum EnemyType : int{Basic = 0, Advanced = 1, Smart = 2};
+	public enum EnemyManeuver : int{Basic = 0, Advanced = 1, Smart = 2, Static = 3};
 
+	
 }
 
 
