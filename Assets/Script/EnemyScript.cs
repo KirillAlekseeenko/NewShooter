@@ -74,7 +74,7 @@ public class EnemyScript : MonoBehaviour {
 	void OnTriggerEnter(Collider other)
 	{
 		if (other.tag == "wall") {
-			Debug.Log ("enemy triggers wall");
+			//Debug.Log ("enemy triggers wall");
 			Vector3 course = new Vector3 ((transform.position - other.transform.position).x, 0, 0).normalized * enemySpeed;
 			StartCoroutine(correctCourse(course, 2.0f));
 		}
@@ -151,17 +151,16 @@ public class EnemyScript : MonoBehaviour {
 			}
 		case EnemyManeuver.Static:
 			{
-
-				if (direction == Direction.Left) {
-					velocity = new Vector3 (-1, 0, 0);
-				} else {
-					velocity = new Vector3 (1, 0, 0);
+				if (isStopped) {
+					if (direction == Direction.Left) {
+						velocity = new Vector3 (-1, 0, 0);
+					} else {
+						velocity = new Vector3 (1, 0, 0);
+					}
 				}
 					
 				if (!isStopped && transform.position.z < stopPlace) {
 					isStopped = true;
-
-					velocity = new Vector3 (1, 0, 0);
 				}
 
 				if (Mathf.Abs (transform.position.x) >= border) {
@@ -199,7 +198,7 @@ public class EnemyScript : MonoBehaviour {
 					Model.SetInteger ("right", 1);
 				else
 					Model.SetInteger ("right", -1);
-				Debug.Log ("turn");
+				//Debug.Log ("turn");
 				isTurning = true;
 			}
 				
@@ -217,7 +216,7 @@ public class EnemyScript : MonoBehaviour {
 
 		} else if (isTurning) {
 			Model.SetInteger ("right", 0);
-			Debug.Log ("turn");
+			//Debug.Log ("turn");
 			isTurning = false;
 
 		}

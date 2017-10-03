@@ -68,11 +68,17 @@ public class BulletScript : MonoBehaviour {
 			ArmoredScript armor = other.gameObject.GetComponent<ArmoredScript> ();
 
 			if (armor.isDestroyed ()) {
+
+				if (onHit != null)
+					onHit ();
 				//destroyed's rotation
 				Quaternion rotation = other.gameObject.GetComponent<EnemyScript>().Model.transform.rotation;
 
+				Destroy (other.gameObject);
 				SpawnDestroyed (explosionSite, other.gameObject.transform.position, rotation);
 			}
+
+			Destroy (gameObject);
 
 		}
 

@@ -4,10 +4,9 @@ using System.Collections.Generic;
 
 public class ArmedScript : MonoBehaviour {
 
-	[SerializeField]
-	public List<GameObject> targets;
+	private GameObject[] targets;
 
-	private List<GunScript> targetComponents;
+	private GunScript[] targetComponents;
 
 	[SerializeField]
 	private GameObject traceParticlePrefab;
@@ -16,10 +15,14 @@ public class ArmedScript : MonoBehaviour {
 	private bool isShooting = false;
 	[SerializeField]
 	private float scatter;
+	[SerializeField]
+	private float shift; // shifted trail looks much more realistic
 
 	// Use this for initialization
 	void Start () {
-		for (int i = 0; i < targets.Count; i++) {
+		targets = GameObject.FindGameObjectsWithTag ("gun");
+		targetComponents = new GunScript[targets.Length];
+		for (int i = 0; i < targets.Length; i++) {
 			targetComponents [i] = targets [i].GetComponent<GunScript> ();
 		}
 		startShooting ();
@@ -29,7 +32,7 @@ public class ArmedScript : MonoBehaviour {
 	void Update () {
 
 		if (isShooting) {
-			for (int i = 0; i < targets.Count; i++) {
+			for (int i = 0; i < targets.Length; i++) {
 				if (targetComponents [i].isFreeze ())
 					continue;
 				shoot (targets [i].transform.position, scatter); 
@@ -51,12 +54,20 @@ public class ArmedScript : MonoBehaviour {
 
 		Vector3 targetWithDeflection = target + deflection * scatter;
 
-		float length = (targetWithDeflection - transform.position).magnitude; // length of the particle
-		traceComponent.startLifetime = length / traceComponent.startSpeed;
+		
+		Vector3 direction = (targetWithDeflection - transform.position).normalized; // origin of the particle
+		traceParticle.transform.position = transform.position + direction * shift;
 
-		Quaternion rotation = Quaternion.LookRotation (targetWithDeflection - transform.position); // particle's rotation
+		float length = (targetWithDeflection - transform.position).magnitude; // length of the particle
+		traceComponent.startLifetime = (length - 2 * shift) / traceComponent.startSpeed;
+
+		Quaternion rotation = Quaternion.LookRotation (targetWithDeflection - transform.position);// particle's rotation
+
+
+
 		traceParticle.transform.localRotation = rotation;
-		traceComponent.startRotation3D = new Vector3 (0, 0, 180.0f + rotation.y);
+		Debug.Log (traceParticle.transform.localRotation.eulerAngles.y.ToString());
+		traceComponent.startRotation3D = new Vector3 (0, 0, (180.0f + traceParticle.transform.rotation.eulerAngles.y) * Mathf.Deg2Rad);
 
 
 	}
