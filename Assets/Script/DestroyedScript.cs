@@ -11,6 +11,7 @@ public class DestroyedScript : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		transform.localScale *= LevelManagerScript.currentLevel.enemySize;
         Destroy(gameObject, lifetime);
 
         var bitmask = 1 << 8;

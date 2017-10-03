@@ -73,13 +73,14 @@ namespace ProgressBar
         /// </summary>
         [SerializeField]
         private OnCompleteEvent OnCompleteMethods;
-        
-        void Start()
-        {
-            m_Fill = GetComponent<Image>();
-            m_Value = 0;
-            SetFillerSize(0);
-        }
+
+		void Awake()
+		{
+			m_Fill = GetComponent<Image>();
+			m_Value = 0;
+			SetFillerSize(0);
+		}
+       
 
         void Update()
         {

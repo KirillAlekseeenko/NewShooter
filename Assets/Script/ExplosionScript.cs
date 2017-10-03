@@ -8,6 +8,7 @@ public class ExplosionScript : MonoBehaviour {
 
 	void Awake()
 	{
+		transform.localScale *= LevelManagerScript.currentLevel.enemySize;
 		Destroy (gameObject, lifetime);
 	}
 }

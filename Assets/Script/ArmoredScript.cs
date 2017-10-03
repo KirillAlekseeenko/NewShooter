@@ -16,12 +16,14 @@ public class ArmoredScript : MonoBehaviour {
 	private Canvas canvas;
 	private RectTransform barRectTransform;
 	private RectTransform canvasRectTransform;
+	private float armorBarHeight;
 
 	private float armor;
 
 	void Awake()
 	{
 		canvasRectTransform = canvas.GetComponent<RectTransform> ();
+		armorBarHeight = canvasRectTransform.position.z - transform.position.z;
 		barRectTransform = armorBar.GetComponent<RectTransform> ();
 		armor = fullArmor;
 	}
@@ -38,6 +40,7 @@ public class ArmoredScript : MonoBehaviour {
 	void LateUpdate()
 	{
 		canvasRectTransform.rotation = Quaternion.Euler (90, 0, 0);
+		canvasRectTransform.position = new Vector3 (transform.position.x, transform.position.y, transform.position.z + armorBarHeight);
 	}
 
 

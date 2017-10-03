@@ -14,6 +14,8 @@ public class ArmedScript : MonoBehaviour {
 	private ParticleSystem traceComponent;
 	private bool isShooting = false;
 	[SerializeField]
+	private float damage;
+	[SerializeField]
 	private float scatter;
 	[SerializeField]
 	private float shift; // shifted trail looks much more realistic
@@ -35,7 +37,9 @@ public class ArmedScript : MonoBehaviour {
 			for (int i = 0; i < targets.Length; i++) {
 				if (targetComponents [i].isFreeze ())
 					continue;
-				shoot (targets [i].transform.position, scatter); 
+				shoot (targets [i].transform.position, scatter);
+				targetComponents [i].decreaseHealth (damage * Time.deltaTime);
+				break;
 			}
 		}
 	
@@ -66,7 +70,6 @@ public class ArmedScript : MonoBehaviour {
 
 
 		traceParticle.transform.localRotation = rotation;
-		Debug.Log (traceParticle.transform.localRotation.eulerAngles.y.ToString());
 		traceComponent.startRotation3D = new Vector3 (0, 0, (180.0f + traceParticle.transform.rotation.eulerAngles.y) * Mathf.Deg2Rad);
 
 

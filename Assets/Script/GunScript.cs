@@ -9,6 +9,7 @@ public class GunScript : MonoBehaviour {
     public GameObject bullet;
     public GameObject bulletSpawn;
 	public GameObject reloadBar;
+	public GameObject healthBar;
 	//public ProgressRadialBehaviour reloadScript;
     public float fireRate;
     public string inputName;
@@ -31,6 +32,8 @@ public class GunScript : MonoBehaviour {
 	private GameObject normalGun;
 	[SerializeField]
 	private GameObject explosion;
+	[SerializeField]
+	private GameObject mainLaser;
 
 
 
@@ -43,6 +46,8 @@ public class GunScript : MonoBehaviour {
     
 	// Use this for initialization
 	void Start () {
+		health = fullHealth;
+		healthBar.GetComponent<ProgressBar.ProgressRadialBehaviour> ().SetFillerSize (health / fullHealth);
         nextFire = 0;
 		enemyType = LevelManagerScript.currentLevel.enemyType;
 
@@ -55,7 +60,9 @@ public class GunScript : MonoBehaviour {
 		if (!isFreezed) {
 			reflectRay ();
 			nextFire += Time.deltaTime;
-			transform.Rotate(Vector3.up * Time.deltaTime * speed);
+			transform.Rotate (Vector3.up * Time.deltaTime * speed);
+		} else {
+			repair ();
 		}
 
 
@@ -141,6 +148,7 @@ public class GunScript : MonoBehaviour {
 		health -= damage;
 		if (health <= 0)
 			freeze ();
+		healthBar.GetComponent<ProgressBar.ProgressRadialBehaviour> ().SetFillerSize (health / fullHealth);
 
 	}
 	public bool isFreeze ()
@@ -149,11 +157,12 @@ public class GunScript : MonoBehaviour {
 	}
 	private void repair()
 	{
-		health += repairedPerFrame;
+		health += repairedPerFrame * Time.deltaTime;
 		if (health >= fullHealth) {
 			health = fullHealth;
 			unfreeze ();
 		}
+		healthBar.GetComponent<ProgressBar.ProgressRadialBehaviour> ().SetFillerSize (health / fullHealth);
 	}
 	private void freeze()
 	{
@@ -161,6 +170,9 @@ public class GunScript : MonoBehaviour {
 		isFreezed = true;
 		destroyedGun.SetActive (true);
 		normalGun.SetActive (false);
+		mainLaser.SetActive (false);
+		laserReflection.SetActive (false);
+		isReflectionOn = false;
 		nextFire = 0;
 	}
 	private void unfreeze()
@@ -168,6 +180,7 @@ public class GunScript : MonoBehaviour {
 		isFreezed = false;
 		destroyedGun.SetActive (false);
 		normalGun.SetActive (true);
+		mainLaser.SetActive (true);
 	}
 
 
