@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public class ArmedScript : MonoBehaviour {
 
+	public AudioClip shootEffect;
+
 	private GameObject[] targets;
 
 	private GunScript[] targetComponents;
@@ -69,14 +71,23 @@ public class ArmedScript : MonoBehaviour {
 
 
 
+
 		traceParticle.transform.localRotation = rotation;
 		traceComponent.startRotation3D = new Vector3 (0, 0, (180.0f + traceParticle.transform.rotation.eulerAngles.y) * Mathf.Deg2Rad);
 
 
 	}
+	private IEnumerator startSoundEffect()
+	{
+		while (isShooting) {
+			SoundManager.instance.PlayEffect (shootEffect);
+			yield return new WaitForSeconds (0.3f);
+		}
+	}
 	private void startShooting()
 	{
 		isShooting = true;
+		StartCoroutine (startSoundEffect ());
 		traceParticle = Instantiate (traceParticlePrefab, transform.position, Quaternion.Euler(180.0f, 0, 0)) as GameObject;
 		traceComponent = traceParticle.GetComponent<ParticleSystem> ();
 	}

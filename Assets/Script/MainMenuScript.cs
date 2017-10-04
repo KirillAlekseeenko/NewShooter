@@ -15,6 +15,7 @@ public class MainMenuScript : MonoBehaviour {
 	public bool isAudioLocked;
 	public float musicVolume;
 	public float effectsVolume;
+	public AudioClip backgroundMusic;
 
 	public GameObject MainPanel;
 	public GameObject AudioPanel;
@@ -42,6 +43,7 @@ public class MainMenuScript : MonoBehaviour {
 
 	void Start()
 	{
+		SoundManager.instance.PlayMusic (backgroundMusic);
 		
 		if(PlayerPrefs.HasKey("AUDIO"))
 		{
@@ -66,6 +68,12 @@ public class MainMenuScript : MonoBehaviour {
 			EnemySpeedTextBox.text = level.enemySpeed.ToString ();
 			SpawnRateTextBox.text = level.spawnRate.ToString ();
 			EnemyTypeDropdown.value = (int)level.enemyType;
+
+			GunSpeedTextBox.text = level.gunSpeedModifier.ToString ();
+			ReloadTextBox.text = level.gunReloadModifier.ToString ();
+			FriendSpawnChanceTextBox.text = level.friendSpawnChance.ToString ();
+			ArmoredSpawnChanceTextBox.text = level.armoredSpawnChance.ToString ();
+			ArmedSpawnChanceTextBox.text = level.armedSpawnChance.ToString ();
 		} 
 	}
 
@@ -164,11 +172,11 @@ public class MainMenuScript : MonoBehaviour {
 
 	public void onMusicSliderValueChanged()
 	{
-		this.GetComponent<AudioSource> ().volume = musicSlider.value;
+		SoundManager.instance.musicSource.volume = musicSlider.value;
 	}
 	public void onEffectsSliderValueChanged()
 	{
-
+		SoundManager.instance.effectsSource.volume = effectsSlider.value;
 	}
 	public void onAudioSliderValueChanged()
 	{
@@ -194,7 +202,12 @@ public class MainMenuScript : MonoBehaviour {
 	public InputField SpawnRateTextBox;
 	public Dropdown EnemyTypeDropdown;
 
+	public InputField GunSpeedTextBox;
+	public InputField ReloadTextBox;
 
+	public InputField FriendSpawnChanceTextBox;
+	public InputField ArmoredSpawnChanceTextBox;
+	public InputField ArmedSpawnChanceTextBox;
 
 		
 }

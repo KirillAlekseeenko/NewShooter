@@ -3,6 +3,9 @@ using System.Collections;
 
 public class BulletScript : MonoBehaviour {
 
+	public AudioClip shotEffect;
+	public AudioClip reboundEffect;
+
 	public float lifetime;
 	[SerializeField]
 	private GameObject Explosion;
@@ -18,6 +21,7 @@ public class BulletScript : MonoBehaviour {
 	
 	void Awake()
 	{
+		
 		Destroy (gameObject, lifetime);
 	}
 	/*void OnCollisionEnter(Collision other){
@@ -28,6 +32,7 @@ public class BulletScript : MonoBehaviour {
 
 	void Start()
 	{
+		SoundManager.instance.PlayEffect (shotEffect);
 		enemyType = LevelManagerScript.currentLevel.enemyType;
 	}
 
@@ -107,6 +112,7 @@ public class BulletScript : MonoBehaviour {
 
 	void OnCollisionExit(Collision other){                      // for smart ememies
 		if (other.gameObject.tag == "wall") {
+			SoundManager.instance.PlayEffect (reboundEffect);
 			Vector3 ray = this.GetComponent<Rigidbody> ().velocity;
 			if (enemyType == EnemyScript.EnemyManeuver.Smart) {
 				RaycastHit[] hitsinfo;

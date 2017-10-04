@@ -151,11 +151,12 @@ public class EnemyScript : MonoBehaviour {
 			}
 		case EnemyManeuver.Static:
 			{
+				float vertical_velocity = -0.05f;
 				if (isStopped) {
 					if (direction == Direction.Left) {
-						velocity = new Vector3 (-1, 0, 0);
+						velocity = new Vector3 (-1, 0, vertical_velocity);
 					} else {
-						velocity = new Vector3 (1, 0, 0);
+						velocity = new Vector3 (1, 0, vertical_velocity);
 					}
 				}
 					

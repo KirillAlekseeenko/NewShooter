@@ -18,11 +18,21 @@ public class LevelManagerScript : MonoBehaviour {
 		public int stars;
 		public bool locked;
 
+		//gun
+
+		public float gunSpeedModifier; // value = standart_value * modifier
+		public float gunReloadModifier;
+
 		// properties
 
 		public float enemySpeed;
 		public float spawnRate;
 		public float enemySize;
+
+		public float friendSpawnChance; // this values must be less than 1, spawn chance of Enemy equals to 1 - fSC - a-redSC - a-edSC
+		public float armoredSpawnChance;
+		public float armedSpawnChance;
+
 		public EnemyScript.EnemyManeuver enemyType;
 
 		public Button.ButtonClickedEvent onButtonClicked;
@@ -34,10 +44,17 @@ public class LevelManagerScript : MonoBehaviour {
 			stars = other.stars;
 			locked = other.locked;
 
+			gunSpeedModifier = other.gunSpeedModifier;
+			gunReloadModifier = other.gunReloadModifier;
+
 			enemySpeed = other.enemySpeed;
 			enemySize = other.enemySize;
 			enemyType = other.enemyType;
 			spawnRate = other.spawnRate;
+
+			friendSpawnChance = other.friendSpawnChance;
+			armoredSpawnChance = other.armoredSpawnChance;
+			armedSpawnChance = other.armedSpawnChance;
 
 			onButtonClicked = other.onButtonClicked;
 		}
@@ -192,6 +209,13 @@ public class LevelManagerScript : MonoBehaviour {
 	public InputField SpawnRateTextBox;
 	public Dropdown EnemyTypeDropdown;
 
+	public InputField GunSpeedTextBox;
+	public InputField ReloadTextBox;
+
+	public InputField FriendSpawnChanceTextBox;
+	public InputField ArmoredSpawnChanceTextBox;
+	public InputField ArmedSpawnChanceTextBox;
+
 
 	public void RunTestButtonCLick()
 	{
@@ -200,7 +224,14 @@ public class LevelManagerScript : MonoBehaviour {
 		currentLevel.enemySpeed = Convert.ToSingle (EnemySpeedTextBox.text);
 		currentLevel.spawnRate = Convert.ToSingle (SpawnRateTextBox.text);
 
+		currentLevel.gunSpeedModifier = Convert.ToSingle (GunSpeedTextBox.text);
+		currentLevel.gunReloadModifier = Convert.ToSingle (ReloadTextBox.text);
+
 		currentLevel.enemyType = (EnemyScript.EnemyManeuver)EnemyTypeDropdown.value;
+
+		currentLevel.friendSpawnChance = Convert.ToSingle (FriendSpawnChanceTextBox.text);
+		currentLevel.armoredSpawnChance = Convert.ToSingle (ArmoredSpawnChanceTextBox.text);
+		currentLevel.armedSpawnChance = Convert.ToSingle (ArmedSpawnChanceTextBox.text);
 
 		PlayerPrefs.SetString("TEST", JsonUtility.ToJson(new Level(currentLevel)));
 		//Debug.Log (JsonUtility.ToJson (new LevelListWrapper(initialLevelList)));

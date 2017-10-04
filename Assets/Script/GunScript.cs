@@ -3,7 +3,7 @@ using System.Collections;
 
 public class GunScript : MonoBehaviour {
 
-    public int speed = 60;
+    public float speed = 60;
     public float bulletSpeed;
 	private EnemyScript.EnemyManeuver enemyType;
     public GameObject bullet;
@@ -46,6 +46,8 @@ public class GunScript : MonoBehaviour {
     
 	// Use this for initialization
 	void Start () {
+		speed *= LevelManagerScript.currentLevel.gunSpeedModifier;
+		fireRate *= LevelManagerScript.currentLevel.gunReloadModifier;
 		health = fullHealth;
 		healthBar.GetComponent<ProgressBar.ProgressRadialBehaviour> ().SetFillerSize (health / fullHealth);
         nextFire = 0;
@@ -60,11 +62,11 @@ public class GunScript : MonoBehaviour {
 		if (!isFreezed) {
 			reflectRay ();
 			nextFire += Time.deltaTime;
-			transform.Rotate (Vector3.up * Time.deltaTime * speed);
 		} else {
 			repair ();
 		}
 
+		transform.Rotate (Vector3.up * Time.deltaTime * speed);
 
 		var _fillerSize = nextFire / fireRate;
 		if (_fillerSize < 0)

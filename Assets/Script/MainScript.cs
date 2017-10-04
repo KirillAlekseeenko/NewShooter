@@ -8,7 +8,13 @@ using System;
 public class MainScript : MonoBehaviour {
 
 	public int levelNumber;
-	public Transform Enemy;
+
+	//spawn prefabs
+	public GameObject Enemy;
+	public GameObject Friend;
+	public GameObject Armored;
+	public GameObject Armed;
+
 	public Transform Background;
     
     public float SpawnEnemyBorder;
@@ -34,6 +40,12 @@ public class MainScript : MonoBehaviour {
 	public int twoStarsBorder;
 	public int threeStarsBorder;
 
+	//spawn
+
+	private float friendSpawnChance;
+	private float armoredSpawnChance;
+	private float armedSpawnChance;
+
 	//panels
 	public GameObject mainUIPanel;
 	public GameObject pausePanel;
@@ -56,6 +68,8 @@ public class MainScript : MonoBehaviour {
 
 
 	//audio
+	[Header("Audio")]
+
 	[SerializeField]
 	private Toggle audioToggle;
 	[SerializeField]
@@ -64,6 +78,9 @@ public class MainScript : MonoBehaviour {
 	private Slider musicSlider;
 	[SerializeField]
 	private Slider audioSlider;
+
+
+	[Space(10)]
 
 	//animations
 
@@ -76,16 +93,27 @@ public class MainScript : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+
+		// spawn info
+		friendSpawnChance = LevelManagerScript.currentLevel.friendSpawnChance;
+		armoredSpawnChance = LevelManagerScript.currentLevel.armoredSpawnChance;
+		armedSpawnChance = LevelManagerScript.currentLevel.armedSpawnChance;
 		SpawnTime = LevelManagerScript.currentLevel.spawnRate;
+
 		Time.timeScale = 1;
-		timeToSpawn = SpawnTime;
+		timeToSpawn = SpawnTime; // spawn reload
+
+		// UI initialization
 		remain = initialNumberOfEnemies;
 		spawned = initialNumberOfEnemies;
 		score = initialScore;
 		updateScoreLabel ();
+
+		//events
 		BorderScript.onMiss += reduceScore;
 		BulletScript.onHit += addScore;
 		BulletScript.onFriendlyFire += reduceScore;
+		BorderScript.onFriendPassed += friendPassed;
 
 
     }
@@ -95,6 +123,7 @@ public class MainScript : MonoBehaviour {
 		BorderScript.onMiss -= reduceScore;
 		BulletScript.onHit -= addScore;
 		BulletScript.onFriendlyFire -= reduceScore;
+		BorderScript.onFriendPassed -= friendPassed;
 	}
 	/*void onDestroy()
 	{
@@ -134,9 +163,23 @@ public class MainScript : MonoBehaviour {
 
 	private void SpawnEnemy(EnemyScript.EnemyManeuver type)
 	{
+		EnemyScript.EnemyManeuver _type = type;
+		GameObject spawnPrefab;
+		float value = UnityEngine.Random.value;
+		Debug.Log (value.ToString ());
+		if (value - friendSpawnChance <= 0)
+			spawnPrefab = Friend;
+		else if (value - friendSpawnChance - armoredSpawnChance <= 0)
+			spawnPrefab = Armored;
+		else if (value - friendSpawnChance - armoredSpawnChance - armedSpawnChance <= 0) {
+			spawnPrefab = Armed;
+			_type = EnemyScript.EnemyManeuver.Static;
+		}
+		else
+			spawnPrefab = Enemy;
 		timeToSpawn = SpawnTime;
-		Transform _enemy = Instantiate(Enemy, new Vector3(UnityEngine.Random.Range(-SpawnEnemyBorder, SpawnEnemyBorder), 0, SpawnHeight), Quaternion.Euler(new Vector3(0, 0, 0))) as Transform;
-		_enemy.GetComponent<EnemyScript> ().setType (type);
+		GameObject _enemy = Instantiate(spawnPrefab, new Vector3(UnityEngine.Random.Range(-SpawnEnemyBorder, SpawnEnemyBorder), 0, SpawnHeight), Quaternion.Euler(new Vector3(0, 0, 0))) as GameObject;
+		_enemy.GetComponent<EnemyScript> ().setType (_type);
 	}
 
 	public void updateScoreLabel() // 1 - green, -1 - red
@@ -180,6 +223,11 @@ public class MainScript : MonoBehaviour {
 		updateScoreLabel (1);
 
 		//StartCoroutine(LabelStretchAndShrink(scoreText, 0.5f, 1.5f, 15));
+	}
+	public void friendPassed()
+	{
+		remain--;
+		updateRemainLabel ();
 	}
 	public void nothingIsRemaining()
 	{
@@ -370,11 +418,11 @@ public class MainScript : MonoBehaviour {
 	}
 	public void onMusicSliderValueChanged()
 	{
-		//this.GetComponent<AudioSource> ().volume = musicSlider.value;
+		SoundManager.instance.musicSource.volume = musicSlider.value;
 	}
 	public void onEffectsSliderValueChanged()
 	{
-
+		SoundManager.instance.effectsSource.volume = effectsSlider.value;
 	}
 	public void onAudioSliderValueChanged()
 	{
