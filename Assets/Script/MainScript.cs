@@ -42,9 +42,15 @@ public class MainScript : MonoBehaviour {
 
 	//spawn
 
+
 	private float friendSpawnChance;
 	private float armoredSpawnChance;
 	private float armedSpawnChance;
+
+	private int friendAmount;
+	private int armoredAmount;
+	private int armedAmount;
+
 
 	//panels
 	public GameObject mainUIPanel;
@@ -99,6 +105,11 @@ public class MainScript : MonoBehaviour {
 		armoredSpawnChance = LevelManagerScript.currentLevel.armoredSpawnChance;
 		armedSpawnChance = LevelManagerScript.currentLevel.armedSpawnChance;
 		SpawnTime = LevelManagerScript.currentLevel.spawnRate;
+
+		friendAmount = Mathf.RoundToInt (initialNumberOfEnemies * friendSpawnChance);
+		armoredAmount = Mathf.RoundToInt (initialNumberOfEnemies * armoredSpawnChance);
+		armedAmount = Mathf.RoundToInt (initialNumberOfEnemies * armedSpawnChance);
+
 
 		Time.timeScale = 1;
 		timeToSpawn = SpawnTime; // spawn reload
@@ -165,18 +176,24 @@ public class MainScript : MonoBehaviour {
 	{
 		EnemyScript.EnemyManeuver _type = type;
 		GameObject spawnPrefab;
-		float value = UnityEngine.Random.value;
-		Debug.Log (value.ToString ());
-		if (value - friendSpawnChance <= 0)
+
+		int value = UnityEngine.Random.Range(0, spawned);
+		//Debug.Log (value.ToString ());
+		if (value - friendAmount < 0) {
 			spawnPrefab = Friend;
-		else if (value - friendSpawnChance - armoredSpawnChance <= 0)
+			friendAmount--;
+			Debug.Log (friendAmount);
+		} else if (value - friendAmount - armoredAmount < 0) {
 			spawnPrefab = Armored;
-		else if (value - friendSpawnChance - armoredSpawnChance - armedSpawnChance <= 0) {
+			armoredAmount--;
+		} else if (spawned - friendAmount - armoredAmount - armedAmount < 0) {
 			spawnPrefab = Armed;
+			armedAmount--;
 			_type = EnemyScript.EnemyManeuver.Static;
-		}
-		else
+		} else {
 			spawnPrefab = Enemy;
+		}
+
 		timeToSpawn = SpawnTime;
 		GameObject _enemy = Instantiate(spawnPrefab, new Vector3(UnityEngine.Random.Range(-SpawnEnemyBorder, SpawnEnemyBorder), 0, SpawnHeight), Quaternion.Euler(new Vector3(0, 0, 0))) as GameObject;
 		_enemy.GetComponent<EnemyScript> ().setType (_type);
