@@ -64,7 +64,7 @@ namespace ProgressBar
         /// Otherwise no Error will be raised.
         /// </summary>
         [SerializeField]
-        private Text m_AttachedText;
+		private Text m_AttachedText;
 
         /// <summary>
         /// In pixels per seconds, the speed at which the Filler will be animated.

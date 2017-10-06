@@ -136,22 +136,7 @@ public class MainScript : MonoBehaviour {
 		BulletScript.onFriendlyFire -= reduceScore;
 		BorderScript.onFriendPassed -= friendPassed;
 	}
-	/*void onDestroy()
-	{
-		BorderScript.onMiss -= reduceScore;
-		EnemyScript.onHit -= addScore;
-	}*/
-	/*
-	void onEnable()
-	{
-		BorderScript.onMiss += reduceScore;
-		EnemyScript.onHit += addScore;
-	}
-	void onDisable()
-	{
-		BorderScript.onMiss -= reduceScore;
-		EnemyScript.onHit -= addScore;
-	}*/
+
 
 	// Update is called once per frame
 	void Update () {
@@ -178,15 +163,15 @@ public class MainScript : MonoBehaviour {
 		GameObject spawnPrefab;
 
 		int value = UnityEngine.Random.Range(0, spawned);
-		//Debug.Log (value.ToString ());
+		//Debug.Log (new Vector3(value).ToString ());
 		if (value - friendAmount < 0) {
 			spawnPrefab = Friend;
 			friendAmount--;
-			Debug.Log (friendAmount);
+			//Debug.Log (friendAmount);
 		} else if (value - friendAmount - armoredAmount < 0) {
 			spawnPrefab = Armored;
 			armoredAmount--;
-		} else if (spawned - friendAmount - armoredAmount - armedAmount < 0) {
+		} else if (value - friendAmount - armoredAmount - armedAmount < 0) {
 			spawnPrefab = Armed;
 			armedAmount--;
 			_type = EnemyScript.EnemyManeuver.Static;
@@ -212,15 +197,16 @@ public class MainScript : MonoBehaviour {
 			scoreText.text = score.ToString();
 		else
 			scoreText.text = "0";
+		
 
 		if(!isChanging)
-			StartCoroutine(LabelStretchAndShrink(scoreText, 0.2f, 1.5f, 15, color));
+			StartCoroutine(LabelStretchAndShrink(scoreText, 0.2f, 2.0f, 15, color));
 	}
 	public void updateRemainLabel()
 	{
 		remainText.text = remain.ToString ();
 		if (remain < 4) { // 3 2 1 0
-			StartCoroutine(LabelStretchAndShrink(remainText, 0.5f, 1.5f, 15, 0));
+			StartCoroutine(LabelStretchAndShrink(remainText, 0.5f, 2.0f, 15, 0));
 		}
 	}
 

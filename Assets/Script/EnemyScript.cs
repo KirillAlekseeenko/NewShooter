@@ -194,18 +194,22 @@ public class EnemyScript : MonoBehaviour {
 
 			dif.ToAngleAxis (out angle, out axis);
 
+
+				
+
+			if (angle > 360.0f - angle)
+				axis = -axis;
+
 			if (!isTurning) {
-				if (axis.y >= 0)
+				Debug.Log (new Vector3(axis.y, angle, Vector3.Angle(actualVelocity, velocity)));
+
+				if (axis.y > 0)
 					Model.SetInteger ("right", 1);
 				else
 					Model.SetInteger ("right", -1);
 				//Debug.Log ("turn");
 				isTurning = true;
 			}
-				
-
-			if (angle > 360.0f - angle)
-				axis = -axis;
 
 			//Debug.Log (angle.ToString() + ": " + axis.ToString());
 
@@ -254,42 +258,6 @@ public class EnemyScript : MonoBehaviour {
 	}
 	public void dodgeBullet(Vector3 trajectory, Vector3 originToPosition) // smart
 	{
-		/*var yr = trajectory.x * enemySpeed / Mathf.Sqrt (Mathf.Pow (trajectory.x, 2.0f) + Mathf.Pow (trajectory.z, 2.0f));
-
-		var xr = enemySpeed * Mathf.Sqrt (1 - Mathf.Pow (trajectory.x, 2.0f) / (Mathf.Pow (trajectory.x, 2.0f) + Mathf.Pow (trajectory.z, 2.0f)));
-
-		Vector3 result1 = new Vector3 (-xr, 0, yr);
-		Vector3 result2 = new Vector3 (xr, 0, -yr);
-		Vector3 result;
-
-		Vector3 dir = originToPosition - trajectory;
-
-		if (Mathf.Approximately (Vector3.Dot (result1, trajectory), 0)) {
-			result = result1;
-		} else {
-			result = result2;
-		}*/
-
-
-
-		/*if (Vector3.Dot (result) < 0) {
-			result1 = new Vector3 (xr, 0, yr);
-			result = new Vector3 (xr, 0, yr);
-		} else {
-			result2 = new Vector3 (-xr, 0, -yr);
-			result = new Vector3 (-xr, 0, -yr);
-		}*/
-
-		
-		/*Debug.Log(Vector3.Dot(trajectory, result1).ToString());
-		Debug.Log(Vector3.Dot(trajectory, result2).ToString());
-
-		if (velocity.Equals (Vector3.back)) {
-			velocity = result;
-		} else {
-			velocity += result;
-			velocity = Vector3.ClampMagnitude (velocity, enemySpeed);
-		}*/
 		Vector3 dir = originToPosition - trajectory;
 
 		Vector3 result = new Vector3 (1, 0, 1);
@@ -298,12 +266,6 @@ public class EnemyScript : MonoBehaviour {
 		if (Vector3.Dot (result, dir) < 0)
 			result = -result;
 
-	/*if (velocity.Equals (Vector3.back)) {
-			velocity = result;
-		} else {
-			velocity += result;
-			velocity = Vector3.ClampMagnitude (velocity, enemySpeed);
-		}*/
 		StartCoroutine(correctCourse(result, 1.0f));
 
 	}
