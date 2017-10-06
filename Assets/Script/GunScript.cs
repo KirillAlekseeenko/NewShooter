@@ -47,6 +47,7 @@ public class GunScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		speed *= LevelManagerScript.currentLevel.gunSpeedModifier;
+		bulletSpeed *= LevelManagerScript.currentLevel.bulletSpeedModifier;
 		fireRate *= LevelManagerScript.currentLevel.gunReloadModifier;
 		health = fullHealth;
 		healthBar.GetComponent<ProgressBar.ProgressRadialBehaviour> ().SetFillerSize (health / fullHealth);

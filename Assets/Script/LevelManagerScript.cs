@@ -22,6 +22,7 @@ public class LevelManagerScript : MonoBehaviour {
 
 		public float gunSpeedModifier; // value = standart_value * modifier
 		public float gunReloadModifier;
+		public float bulletSpeedModifier;
 
 		// properties
 
@@ -46,6 +47,7 @@ public class LevelManagerScript : MonoBehaviour {
 
 			gunSpeedModifier = other.gunSpeedModifier;
 			gunReloadModifier = other.gunReloadModifier;
+			bulletSpeedModifier = other.bulletSpeedModifier;
 
 			enemySpeed = other.enemySpeed;
 			enemySize = other.enemySize;
@@ -211,6 +213,7 @@ public class LevelManagerScript : MonoBehaviour {
 
 	public InputField GunSpeedTextBox;
 	public InputField ReloadTextBox;
+	public InputField BulletSpeedTextBox;
 
 	public InputField FriendSpawnChanceTextBox;
 	public InputField ArmoredSpawnChanceTextBox;
@@ -226,6 +229,7 @@ public class LevelManagerScript : MonoBehaviour {
 
 		currentLevel.gunSpeedModifier = Convert.ToSingle (GunSpeedTextBox.text);
 		currentLevel.gunReloadModifier = Convert.ToSingle (ReloadTextBox.text);
+		currentLevel.bulletSpeedModifier = Convert.ToSingle (BulletSpeedTextBox.text);
 
 		currentLevel.enemyType = (EnemyScript.EnemyManeuver)EnemyTypeDropdown.value;
 

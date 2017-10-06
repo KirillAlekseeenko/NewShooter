@@ -201,7 +201,6 @@ public class EnemyScript : MonoBehaviour {
 				axis = -axis;
 
 			if (!isTurning) {
-				Debug.Log (new Vector3(axis.y, angle, Vector3.Angle(actualVelocity, velocity)));
 
 				if (axis.y > 0)
 					Model.SetInteger ("right", 1);

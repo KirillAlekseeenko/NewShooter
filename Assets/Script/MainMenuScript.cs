@@ -71,6 +71,7 @@ public class MainMenuScript : MonoBehaviour {
 
 			GunSpeedTextBox.text = level.gunSpeedModifier.ToString ();
 			ReloadTextBox.text = level.gunReloadModifier.ToString ();
+			BulletSpeedTextBox.text = level.bulletSpeedModifier.ToString ();
 			FriendSpawnChanceTextBox.text = level.friendSpawnChance.ToString ();
 			ArmoredSpawnChanceTextBox.text = level.armoredSpawnChance.ToString ();
 			ArmedSpawnChanceTextBox.text = level.armedSpawnChance.ToString ();
@@ -204,6 +205,7 @@ public class MainMenuScript : MonoBehaviour {
 
 	public InputField GunSpeedTextBox;
 	public InputField ReloadTextBox;
+	public InputField BulletSpeedTextBox;
 
 	public InputField FriendSpawnChanceTextBox;
 	public InputField ArmoredSpawnChanceTextBox;

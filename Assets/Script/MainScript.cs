@@ -69,8 +69,8 @@ public class MainScript : MonoBehaviour {
 	public Button RightButton;
 	public Button LeftButton;
 
-	public Text scoreText;
-	public Text remainText;
+	public ScoreText scoreText;
+	public ScoreText remainText;
 
 
 	//audio
@@ -118,7 +118,7 @@ public class MainScript : MonoBehaviour {
 		remain = initialNumberOfEnemies;
 		spawned = initialNumberOfEnemies;
 		score = initialScore;
-		updateScoreLabel ();
+		scoreText.updateLabel (score);
 
 		//events
 		BorderScript.onMiss += reduceScore;
@@ -183,31 +183,13 @@ public class MainScript : MonoBehaviour {
 		GameObject _enemy = Instantiate(spawnPrefab, new Vector3(UnityEngine.Random.Range(-SpawnEnemyBorder, SpawnEnemyBorder), 0, SpawnHeight), Quaternion.Euler(new Vector3(0, 0, 0))) as GameObject;
 		_enemy.GetComponent<EnemyScript> ().setType (_type);
 	}
-
-	public void updateScoreLabel() // 1 - green, -1 - red
-	{
-		if(score > 0)
-			scoreText.text = score.ToString();
-		else
-			scoreText.text = "0";
-	}
-	public void updateScoreLabel(int color) // 1 - green, -1 - red
-	{
-		if(score > 0)
-			scoreText.text = score.ToString();
-		else
-			scoreText.text = "0";
 		
-
-		if(!isChanging)
-			StartCoroutine(LabelStretchAndShrink(scoreText, 0.2f, 2.0f, 15, color));
-	}
 	public void updateRemainLabel()
 	{
-		remainText.text = remain.ToString ();
-		if (remain < 4) { // 3 2 1 0
-			StartCoroutine(LabelStretchAndShrink(remainText, 0.5f, 2.0f, 15, 0));
+		if (remain < 4) {// 3 2 1 0
+			remainText.updateLabel(remain, 0);
 		}
+		remainText.updateLabel (remain);
 	}
 
 	public void reduceScore()
@@ -215,7 +197,7 @@ public class MainScript : MonoBehaviour {
 		remain--;
 		updateRemainLabel ();
 		score -= takeFromScore;
-		updateScoreLabel (-1);
+		scoreText.updateLabel (score, -1);
 
 	}
 	public void addScore()
@@ -223,7 +205,7 @@ public class MainScript : MonoBehaviour {
 		remain--;
 		updateRemainLabel ();
 		score += addToScore;
-		updateScoreLabel (1);
+		scoreText.updateLabel (score, 1);
 
 		//StartCoroutine(LabelStretchAndShrink(scoreText, 0.5f, 1.5f, 15));
 	}
@@ -453,36 +435,6 @@ public class MainScript : MonoBehaviour {
 		transitionImage.SetBool ("faded", true);
 		yield return new WaitForSeconds (0.5f);
 		f (arg);
-	}
-
-
-	public IEnumerator LabelStretchAndShrink(Text label, float time, float stretchDegree, int steps, int color) // green or red, 1 or -1
-	{
-		isChanging = true;
-		
-		scoreText.GetComponent<Animator> ().SetInteger ("add", color);
-
-		int initialFontSize = label.fontSize;
-		for (int i = 1; i <= steps; i++) {
-			yield return new WaitForSecondsRealtime (time / (2 * steps));
-			//yield return null;
-			float size = initialFontSize * (1 + (stretchDegree - 1.0f) * (float)i / steps);
-			label.fontSize = Mathf.RoundToInt (Mathf.Clamp(size, initialFontSize, initialFontSize * stretchDegree));
-
-		}
-
-
-		for (int i = steps; i >= 0; i--) {
-			yield return new WaitForSecondsRealtime (time / (2 * steps));
-			//yield return null;
-			float size = initialFontSize * (1 + (stretchDegree - 1.0f) * (float)i / steps);
-			label.fontSize = Mathf.RoundToInt (Mathf.Clamp(size, initialFontSize, initialFontSize * stretchDegree));
-		}
-
-		scoreText.GetComponent<Animator> ().SetInteger ("add", 0);
-
-		isChanging = false;
-
 	}
 
 }
