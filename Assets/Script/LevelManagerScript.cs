@@ -83,9 +83,12 @@ public class LevelManagerScript : MonoBehaviour {
 	private List<GameObject> levelButtons = new List<GameObject> (12);
 	private float button_appear = 0.05f;
 	public Animator transitionImage;
+	public Text levelText;
 
 	private IEnumerator SceneFadeOut()
 	{
+		levelText.gameObject.SetActive (true);
+		levelText.text = "Level " + currentLevel.number.ToString();
 		transitionImage.SetBool ("faded", true);
 		yield return new WaitForSeconds (0.5f);
 		SceneManager.LoadScene("Level1"); 

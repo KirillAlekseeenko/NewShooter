@@ -91,6 +91,7 @@ public class MainScript : MonoBehaviour {
 	//animations
 
 	public Animator transitionImage;
+	public Text levelText;
 	public List<Animator> pauseButtons;
 
 	//private int fontSize = 44; // POTENTIAL DANGER
@@ -99,6 +100,7 @@ public class MainScript : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+		levelText.text = "Level " + LevelManagerScript.currentLevel.number.ToString ();
 
 		// spawn info
 		friendSpawnChance = LevelManagerScript.currentLevel.friendSpawnChance;
@@ -427,11 +429,13 @@ public class MainScript : MonoBehaviour {
 		Time.timeScale = 1;
 		unsubscribeFromEvents ();
 		//SceneManager.LoadScene ("MainMenu");
+		levelText.gameObject.SetActive(false);
 		StartCoroutine (sceneFadeOut (SceneManager.LoadScene, "MainMenu"));
 	}
 
 	private IEnumerator sceneFadeOut(Action<string> f, string arg)
 	{
+		levelText.text = "Level " + LevelManagerScript.currentLevel.number.ToString();
 		transitionImage.SetBool ("faded", true);
 		yield return new WaitForSeconds (0.5f);
 		f (arg);
