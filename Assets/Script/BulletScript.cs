@@ -12,6 +12,7 @@ public class BulletScript : MonoBehaviour {
     [SerializeField]
     private GameObject Destroyed;
 	private EnemyScript.EnemyManeuver enemyType;
+	private bool hit = false;
 
 	public delegate void hitAction();
 	public static event hitAction onHit;
@@ -38,7 +39,10 @@ public class BulletScript : MonoBehaviour {
 
 	void OnTriggerEnter(Collider other) // bullet hits enemy
 	{
-		if (other.tag == "enemy" || other.tag == "friend") {
+		if ((other.tag == "enemy" || other.tag == "friend") && !hit) {
+
+			hit = true;
+
 			if (onHit != null && other.tag == "enemy") {
 				onHit ();
 			}
@@ -62,10 +66,12 @@ public class BulletScript : MonoBehaviour {
 
 			Destroy (other.gameObject);
 			Destroy (gameObject);
-			//Destroy (EnemyInAdvance);
+
 		}
 
-		if (other.tag == "armored") {
+		if (other.tag == "armored" && !hit) {
+
+			hit = true;
 			
 			Vector3 explosionSite = transform.position;
 			spawnExplosion (explosionSite);

@@ -7,7 +7,7 @@ using System;
 
 public class MainScript : MonoBehaviour {
 
-	public int levelNumber;
+	private int levelNumber;
 
 	//spawn prefabs
 	public GameObject Enemy;
@@ -36,9 +36,9 @@ public class MainScript : MonoBehaviour {
 	public int initialScore;
 	public int addToScore;
 	public int takeFromScore;
-	public int oneStarBorder;
-	public int twoStarsBorder;
-	public int threeStarsBorder;
+	private int oneStarBorder;
+	private int twoStarsBorder;
+	private int threeStarsBorder;
 
 	//spawn
 
@@ -100,7 +100,11 @@ public class MainScript : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-		levelText.text = "Level " + LevelManagerScript.currentLevel.number.ToString ();
+
+		levelNumber = LevelManagerScript.currentLevel.number;
+		levelText.text = "Level " + levelNumber.ToString ();
+
+
 
 		// spawn info
 		friendSpawnChance = LevelManagerScript.currentLevel.friendSpawnChance;
@@ -111,6 +115,14 @@ public class MainScript : MonoBehaviour {
 		friendAmount = Mathf.RoundToInt (initialNumberOfEnemies * friendSpawnChance);
 		armoredAmount = Mathf.RoundToInt (initialNumberOfEnemies * armoredSpawnChance);
 		armedAmount = Mathf.RoundToInt (initialNumberOfEnemies * armedSpawnChance);
+
+		// stars
+
+		int actualEnemies = initialNumberOfEnemies - friendAmount;
+		threeStarsBorder = actualEnemies * addToScore;
+		twoStarsBorder = addToScore * actualEnemies - 2 * (takeFromScore + addToScore);
+		oneStarBorder = addToScore * actualEnemies - 6 * (takeFromScore + addToScore);
+
 
 
 		Time.timeScale = 1;
@@ -256,7 +268,8 @@ public class MainScript : MonoBehaviour {
 
 			case 0:
 				{
-					nextButton.interactable = false;
+					if(levelList [levelNumber - 1].stars == 0)
+						nextButton.interactable = false;
 					Star_1.SetActive (false);
 					Star_2.SetActive (false);
 					Star_3.SetActive (false);
