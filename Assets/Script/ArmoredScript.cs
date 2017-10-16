@@ -28,9 +28,9 @@ public class ArmoredScript : MonoBehaviour {
 		armor = fullArmor;
 	}
 
-	public bool isDestroyed()
+	public bool isDestroyed(float damageModifier)
 	{
-		armor -= damage;
+		armor -= damage * damageModifier;
 
 		barRectTransform.localScale = new Vector3 (armor / fullArmor, 1, 1);
 

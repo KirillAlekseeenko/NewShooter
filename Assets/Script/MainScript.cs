@@ -51,6 +51,13 @@ public class MainScript : MonoBehaviour {
 	private int armoredAmount;
 	private int armedAmount;
 
+	// guns
+
+	[SerializeField]
+	private GunScript leftGun;
+	[SerializeField]
+	private GunScript rightGun;
+
 
 	//panels
 	public GameObject mainUIPanel;
@@ -103,6 +110,7 @@ public class MainScript : MonoBehaviour {
 
 		levelNumber = LevelManagerScript.currentLevel.number;
 		levelText.text = "Level " + levelNumber.ToString ();
+
 
 
 
@@ -167,6 +175,25 @@ public class MainScript : MonoBehaviour {
 		if (remain <= 0 && !finished) {
 			finished = true;
 			nothingIsRemaining ();
+		}
+
+		//touch
+
+		Touch[] touches = Input.touches;
+		foreach (Touch touch in touches) {
+			if (!(touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Moved))
+				continue;
+			if (Camera.main.ScreenToWorldPoint (new Vector3 (touch.position.x, touch.position.y)).x > 0) {
+				rightGun.fire ();
+			} else {
+				leftGun.fire ();
+			}
+		}
+
+		// keyboard
+		if(Input.GetKeyDown(KeyCode.X))
+		{
+			GunScript.isAutomatic = !GunScript.isAutomatic;
 		}
         
     }

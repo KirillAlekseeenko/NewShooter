@@ -18,9 +18,5 @@ public class MainCameraScript : MonoBehaviour {
 		//Camera.main.orthographicSize = constant * (960f / 640f);
 	
 	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+
 }

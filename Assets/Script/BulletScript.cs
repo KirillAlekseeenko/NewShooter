@@ -12,7 +12,11 @@ public class BulletScript : MonoBehaviour {
     [SerializeField]
     private GameObject Destroyed;
 	private EnemyScript.EnemyManeuver enemyType;
-	private bool hit = false;
+	private bool hit = false; // this variable is used to avoid situation when two guns hit an enemy simultaneously
+
+	private float damageModifier = 1.0f; 
+	private float gunDamageModifier;
+	private int hitWallCounter = 0;
 
 	public delegate void hitAction();
 	public static event hitAction onHit;
@@ -22,7 +26,6 @@ public class BulletScript : MonoBehaviour {
 	
 	void Awake()
 	{
-		
 		Destroy (gameObject, lifetime);
 	}
 	/*void OnCollisionEnter(Collision other){
@@ -78,8 +81,7 @@ public class BulletScript : MonoBehaviour {
 
 			ArmoredScript armor = other.gameObject.GetComponent<ArmoredScript> ();
 
-			if (armor.isDestroyed ()) {
-
+			if (armor.isDestroyed (damageModifier * gunDamageModifier)) {
 				if (onHit != null)
 					onHit ();
 				//destroyed's rotation
@@ -95,6 +97,7 @@ public class BulletScript : MonoBehaviour {
 
 
 	}
+
 
 	private void spawnExplosion(Vector3 explosionSite)
 	{
@@ -119,28 +122,72 @@ public class BulletScript : MonoBehaviour {
 	void OnCollisionExit(Collision other){                      // for smart ememies
 		if (other.gameObject.tag == "wall") {
 			SoundManager.instance.PlayEffect (reboundEffect);
-			Vector3 ray = this.GetComponent<Rigidbody> ().velocity;
-			if (enemyType == EnemyScript.EnemyManeuver.Smart) {
-				RaycastHit[] hitsinfo;
-				hitsinfo = Physics.RaycastAll (this.transform.position, ray); 
-				for (int i = 0; i < hitsinfo.Length; i++) {
 
-					RaycastHit hitinfo = hitsinfo [i];
-				
-					if (hitinfo.collider.tag == "enemyinadvance") {
-						//Debug.Log ("DodgeFromWall");
-						Vector3 traj = ray;
-						Vector3 originToTarget = hitinfo.transform.position - transform.position;
-						//hitinfo.collider.gameObject.GetComponentInParent<EnemyScript> ().dodgeBullet (traj, originToTarget);
-
-						hitinfo.collider.gameObject.GetComponentInParent<EnemyScript> ().dodgeBullet (traj, originToTarget);
-
-					}
-				}
+			hitWallCounter++;
+			if (hitWallCounter > 2)                          // decrease damage when bullet collides with gun
+				damageModifier *= 0.5f;
 			
+
+			if (enemyType == EnemyScript.EnemyManeuver.Smart) {
+				
+				findSmartEnemies ();
 			}
 		}
 	}
+
+	private void findSmartEnemies()
+	{
+		Vector3 ray = this.GetComponent<Rigidbody> ().velocity;
+		RaycastHit[] hitsinfo;
+		hitsinfo = Physics.RaycastAll (this.transform.position, ray); 
+		for (int i = 0; i < hitsinfo.Length; i++) {
+
+			RaycastHit hitinfo = hitsinfo [i];
+			//Debug.Log (hitinfo.collider.tag);
+
+			if (hitinfo.collider.tag == "enemyinadvance") {
+				//Debug.Log ("DodgeFromWall");
+				Vector3 traj = ray;
+				Vector3 originToTarget = hitinfo.transform.position - transform.position;
+				//hitinfo.collider.gameObject.GetComponentInParent<EnemyScript> ().dodgeBullet (traj, originToTarget);
+
+
+				Collider carCollider = hitinfo.collider.transform.parent.gameObject.GetComponent<Collider> ();
+
+				Debug.Log (carCollider.tag);
+
+				RaycastHit hit; // we don't need it
+				float maxDistance = 20.0f;
+
+				if (carCollider.Raycast (new Ray (transform.position, traj), out hit, maxDistance)) {
+					Debug.Log ("dodge");
+					hitinfo.collider.gameObject.GetComponentInParent<EnemyScript> ().dodgeBullet (traj, originToTarget);
+				} else {
+					Debug.Log ("moveToGun");
+					hitinfo.collider.gameObject.GetComponentInParent<EnemyScript> ().moveToGun (traj);
+				}
+
+				/*if (i + 1 < hitsinfo.Length && (hitsinfo [i + 1].collider.tag == "enemy" || hitsinfo [i + 1].collider.tag == "armored")) {
+					hitinfo.collider.gameObject.GetComponentInParent<EnemyScript> ().dodgeBullet (traj, originToTarget);
+				} else {
+					hitinfo.collider.gameObject.GetComponentInParent<EnemyScript> ().moveToGun (traj);
+				}*/
+
+
+
+			}
+		}
+	}
+
+	public float GunDamageModifier {
+		get {
+			return gunDamageModifier;
+		}
+		set {
+			gunDamageModifier = value;
+		}
+	}
+
 
 
 

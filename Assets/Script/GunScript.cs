@@ -9,6 +9,7 @@ public class GunScript : MonoBehaviour {
     public GameObject bullet;
     public GameObject bulletSpawn;
 	public GameObject reloadBar;
+	public GameObject doubleBar;
 	public GameObject healthBar;
 	//public ProgressRadialBehaviour reloadScript;
     public float fireRate;
@@ -17,6 +18,16 @@ public class GunScript : MonoBehaviour {
 
 	private float catet = 0.822f; // DANGER!!
 	private float laserLength = 20.0f;
+
+	// burst mode
+
+	static public bool isAutomatic = false;
+
+	// semi-automatic mode
+
+	private float gunDamageModifier = 1.0f;
+	private float maxGunDamageModifier = 2.0f;
+	private float gunDamageModifierIncreaseSpeed = 0.2f;
 
 	// health
 
@@ -74,10 +85,25 @@ public class GunScript : MonoBehaviour {
 			_fillerSize = 0.0f;
         
 		reloadBar.GetComponent<ProgressBar.ProgressRadialBehaviour> ().SetFillerSize (_fillerSize);
-        if(Input.GetKey(inputName))
-        {
+
+
+
+		// touch input
+
+
+
+		//keyboard input
+
+		if (Input.GetKeyDown (inputName)) {
 			fire ();
-        }
+		}
+
+		if (nextFire > fireRate) {
+			gunDamageModifier += gunDamageModifierIncreaseSpeed * Time.deltaTime;
+			gunDamageModifier = Mathf.Clamp (gunDamageModifier, 0, maxGunDamageModifier);
+			doubleBar.GetComponent<ProgressBar.ProgressRadialBehaviour> ().SetFillerSize ((gunDamageModifier - 1) / (maxGunDamageModifier - 1));
+		}
+
     }
 
 	public void fire()
@@ -87,6 +113,9 @@ public class GunScript : MonoBehaviour {
 			GameObject newBullet = Instantiate (bullet, bulletSpawn.transform.position, Quaternion.identity) as GameObject;
 			Vector3 velocity = bulletSpawn.transform.position - transform.position;
 			newBullet.GetComponent<Rigidbody> ().velocity = velocity * bulletSpeed;
+			newBullet.GetComponent<BulletScript> ().GunDamageModifier = gunDamageModifier;
+			gunDamageModifier = 1.0f;
+			doubleBar.GetComponent<ProgressBar.ProgressRadialBehaviour> ().SetFillerSize (0.0f);
 
 			if (enemyType == EnemyScript.EnemyManeuver.Smart) {
 
@@ -95,17 +124,36 @@ public class GunScript : MonoBehaviour {
 				for (int i = 0; i < hitsinfo.Length; i++) {
 
 					RaycastHit hitinfo = hitsinfo [i];
+					Debug.Log (hitinfo.collider.tag);
 
 					if (hitinfo.collider.tag == "enemyinadvance") {
-						Debug.Log ("Dodge");
+						//Debug.Log ("Dodge");
 
 						Vector3 traj = newBullet.GetComponent<Rigidbody> ().velocity;
+						Debug.DrawLine (bulletSpawn.transform.position, bulletSpawn.transform.position + 5 * traj);
 						//Debug.DrawRay (bulletSpawn.transform.position, velocity, Color.red, 30.0f);
 
 						Vector3 originToTarget = hitinfo.transform.position - bulletSpawn.transform.position;
 						//Debug.DrawLine(bulletSpawn.transform.position, hitinfo.transform.position, Color.blue, 30.0f);
 
-						hitinfo.collider.gameObject.GetComponentInParent<EnemyScript> ().dodgeBullet (traj, originToTarget);
+						//hitinfo.collider.gameObject.GetComponentInParent<EnemyScript> ().dodgeBullet (traj, originToTarget);
+
+						//hitinfo.collider.gameObject.GetComponentInParent<BoxCollider> ().
+
+
+						Collider carCollider = hitinfo.collider.transform.parent.gameObject.GetComponent<Collider> ();
+
+						RaycastHit hit; // we don't need it
+						float maxDistance = 20.0f;
+
+						if (carCollider.Raycast (new Ray (bulletSpawn.transform.position, traj), out hit, maxDistance)) {
+							Debug.Log ("dodge");
+							hitinfo.collider.gameObject.GetComponentInParent<EnemyScript> ().dodgeBullet (traj, originToTarget);
+						} else {
+							Debug.Log ("moveToGun");
+							hitinfo.collider.gameObject.GetComponentInParent<EnemyScript> ().moveToGun (traj);
+						}
+
 					}
 				}
 			}

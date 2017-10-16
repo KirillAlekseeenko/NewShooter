@@ -41,8 +41,15 @@ public class MainMenuScript : MonoBehaviour {
 	private float animation_time = 0.5f;
 	//Main Panel
 
+	void Awake()
+	{
+		Application.targetFrameRate = 60;
+	}
+
 	void Start()
 	{
+		
+
 		SoundManager.instance.PlayMusic (backgroundMusic);
 		
 		if(PlayerPrefs.HasKey("AUDIO"))

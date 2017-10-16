@@ -12,6 +12,7 @@ public class EnemyScript : MonoBehaviour {
 
 	[SerializeField]
 	private GameObject EnemyInAdvance;
+	private float distanceAwayFromWall = 0.5f; // for smart enemies
 	[SerializeField]
 	private Vector3 velocity;
 	private Vector3 actualVelocity;
@@ -75,8 +76,8 @@ public class EnemyScript : MonoBehaviour {
 	{
 		if (other.tag == "wall") {
 			//Debug.Log ("enemy triggers wall");
-			Vector3 course = new Vector3 ((transform.position - other.transform.position).x, 0, 0).normalized * enemySpeed;
-			StartCoroutine(correctCourse(course, 2.0f));
+			Vector3 course = new Vector3 ((transform.position - other.transform.position).x, velocity.y, velocity.z).normalized * enemySpeed;
+			StartCoroutine(correctCourse(course, distanceAwayFromWall / course.x));
 		}
 	}
 	
@@ -91,25 +92,6 @@ public class EnemyScript : MonoBehaviour {
 			}
 		case EnemyManeuver.Advanced:
 			{ 
-				
-				/*
-				var border = Camera.main.GetComponent<MainScript> ().SpawnEnemyBorder;
-				if (direction == Direction.Left) {
-					transform.Translate (Vector3.ClampMagnitude (new Vector3 (-1, 0, -1) * enemySpeed, enemySpeed) * Time.deltaTime, Space.World);
-					transform.rotation = Quaternion.LookRotation (new Vector3 (-1, 0, -1));
-				} else {
-					transform.rotation = Quaternion.LookRotation (new Vector3 (1, 0, -1));
-					transform.Translate (Vector3.ClampMagnitude (new Vector3 (1, 0, -1) * enemySpeed, enemySpeed) * Time.deltaTime, Space.World);
-				}
-					
-				if (Mathf.Abs (transform.localPosition.x) >= border) {
-					changeDirection ();
-					time = changeDirectionTime;
-				}
-				if (time <= 0) {
-					time = changeDirectionTime;
-					changeDirection ();
-				}*/
 				time -= Time.deltaTime;
 				if (direction == Direction.Left) {
 					velocity = new Vector3 (-1, 0, -1);
@@ -265,8 +247,18 @@ public class EnemyScript : MonoBehaviour {
 		if (Vector3.Dot (result, dir) < 0)
 			result = -result;
 
+		if (result.z > 0)
+			result = -result;
+
 		StartCoroutine(correctCourse(result, 1.0f));
 
+	}
+	public void moveToGun(Vector3 traj)
+	{
+		if (traj.z > 0) {
+			traj = -traj;
+		}
+		StartCoroutine(correctCourse(traj, 1.0f));
 	}
 	public IEnumerator correctCourse(Vector3 newCourse, float time) //
 	{
