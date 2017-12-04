@@ -12,6 +12,10 @@ public class BulletScript : MonoBehaviour {
     [SerializeField]
     private GameObject Destroyed;
 	private EnemyScript.EnemyManeuver enemyType;
+	private bool isArtilleryModOn;
+	private TrailRenderer bulletTrace;
+	private Rigidbody bulletBody;
+	private float maxTraceLength;
 	private bool hit = false; // this variable is used to avoid situation when two guns hit an enemy simultaneously
 
 	private float damageModifier = 1.0f; 
@@ -38,6 +42,18 @@ public class BulletScript : MonoBehaviour {
 	{
 		SoundManager.instance.PlayEffect (shotEffect);
 		enemyType = LevelManagerScript.currentLevel.enemyType;
+		isArtilleryModOn = LevelManagerScript.currentLevel.isArtilleryModeOn;
+		if (isArtilleryModOn) {
+			bulletTrace = GetComponent<TrailRenderer> ();
+			bulletBody = GetComponent<Rigidbody> ();
+			maxTraceLength = bulletTrace.time * 1.5f;
+		}
+	}
+
+	void Update()
+	{
+		if(isArtilleryModOn)
+			bulletTrace.time = (1 - Mathf.Abs(bulletBody.velocity.y) / bulletBody.velocity.magnitude) * maxTraceLength;
 	}
 
 	void OnTriggerEnter(Collider other) // bullet hits enemy
@@ -54,25 +70,23 @@ public class BulletScript : MonoBehaviour {
 				onFriendlyFire ();
 			}
 
-            //Vector3 spawnExplosion = other.ClosestPointOnBounds(transform.position);
+			//Vector3 spawnExplosion = other.ClosestPointOnBounds(transform.position);
 			Vector3 explosionSite = transform.position;
 
-            //destroyed's rotation
-            Quaternion rotation = other.gameObject.GetComponent<EnemyScript>().Model.transform.rotation;
+			//destroyed's rotation
+			Quaternion rotation = other.gameObject.GetComponent<EnemyScript> ().Model.transform.rotation;
 
-            //Vector3 spawnExplosion = other.transform.position;
-            GameObject explosion = Instantiate (Explosion, explosionSite, Quaternion.identity) as GameObject; // particle
-            GameObject destroyed = Instantiate(Destroyed, other.gameObject.transform.position, rotation) as GameObject; // meshs
-            destroyed.GetComponent<DestroyedScript>().explosionSite = new Vector3(explosionSite.x, explosionSite.y, explosionSite.z);
+			//Vector3 spawnExplosion = other.transform.position;
+			GameObject explosion = Instantiate (Explosion, explosionSite, Quaternion.identity) as GameObject; // particle
+			GameObject destroyed = Instantiate (Destroyed, other.gameObject.transform.position, rotation) as GameObject; // meshs
+			destroyed.GetComponent<DestroyedScript> ().explosionSite = new Vector3 (explosionSite.x, explosionSite.y, explosionSite.z);
 
 
 
 			Destroy (other.gameObject);
 			Destroy (gameObject);
 
-		}
-
-		if (other.tag == "armored" && !hit) {
+		} else if (other.tag == "armored" && !hit) {
 
 			hit = true;
 			
@@ -85,7 +99,7 @@ public class BulletScript : MonoBehaviour {
 				if (onHit != null)
 					onHit ();
 				//destroyed's rotation
-				Quaternion rotation = other.gameObject.GetComponent<EnemyScript>().Model.transform.rotation;
+				Quaternion rotation = other.gameObject.GetComponent<EnemyScript> ().Model.transform.rotation;
 
 				Destroy (other.gameObject);
 				SpawnDestroyed (explosionSite, other.gameObject.transform.position, rotation);
@@ -93,10 +107,12 @@ public class BulletScript : MonoBehaviour {
 
 			Destroy (gameObject);
 
+
 		}
 
 
 	}
+		
 
 
 	private void spawnExplosion(Vector3 explosionSite)
@@ -115,6 +131,9 @@ public class BulletScript : MonoBehaviour {
 			Destroy (this.gameObject);
 			Destroy (collision.gameObject);
 			GameObject explosion = Instantiate (Explosion, transform.position, Quaternion.identity) as GameObject;
+		} else if (isArtilleryModOn && collision.gameObject.tag == "ground") {
+			Destroy (gameObject);
+			GameObject explosion = Instantiate (Explosion, transform.position, Quaternion.identity) as GameObject; // particle
 		}
 	}
 
@@ -189,7 +208,7 @@ public class BulletScript : MonoBehaviour {
 	}
 
 
-
+	public enum BulletType{Basic, Spray}
 
 
 }

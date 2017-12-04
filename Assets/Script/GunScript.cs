@@ -7,6 +7,7 @@ public class GunScript : MonoBehaviour {
     public float bulletSpeed;
 	private EnemyScript.EnemyManeuver enemyType;
     public GameObject bullet;
+	public GameObject sprayBullet;
     public GameObject bulletSpawn;
 	public GameObject reloadBar;
 	public GameObject doubleBar;
@@ -46,6 +47,12 @@ public class GunScript : MonoBehaviour {
 	[SerializeField]
 	private GameObject mainLaser;
 
+	// artillery
+
+	private float artilleryAngle = 45.0f;
+	private float artilleryBulletSpeed;
+	public GameObject artilleryScope;
+	private bool isArtilleryScopeActive = false;
 
 
 	//reflection
@@ -59,11 +66,13 @@ public class GunScript : MonoBehaviour {
 	void Start () {
 		speed *= LevelManagerScript.currentLevel.gunSpeedModifier;
 		bulletSpeed *= LevelManagerScript.currentLevel.bulletSpeedModifier;
+		artilleryBulletSpeed = 0.0f;
 		fireRate *= LevelManagerScript.currentLevel.gunReloadModifier;
 		health = fullHealth;
 		healthBar.GetComponent<ProgressBar.ProgressRadialBehaviour> ().SetFillerSize (health / fullHealth);
         nextFire = 0;
 		enemyType = LevelManagerScript.currentLevel.enemyType;
+
 
 	}
 
@@ -95,7 +104,7 @@ public class GunScript : MonoBehaviour {
 		//keyboard input
 
 		if (Input.GetKeyDown (inputName)) {
-			fire ();
+			fire (BulletScript.BulletType.Basic);
 		}
 
 		if (nextFire > fireRate) {
@@ -106,16 +115,47 @@ public class GunScript : MonoBehaviour {
 
     }
 
-	public void fire()
+	public void fire(BulletScript.BulletType bulletType = BulletScript.BulletType.Basic)
 	{
 		if (nextFire > fireRate) {
 			nextFire = 0;
+
+			GameObject bullet;
+
+			switch (bulletType) {
+			case BulletScript.BulletType.Spray:
+				{
+					bullet = sprayBullet;
+					break;
+				}
+			default:
+				{
+					bullet = this.bullet;
+					break;
+				}
+			}
+
 			GameObject newBullet = Instantiate (bullet, bulletSpawn.transform.position, Quaternion.identity) as GameObject;
 			Vector3 velocity = bulletSpawn.transform.position - transform.position;
-			newBullet.GetComponent<Rigidbody> ().velocity = velocity * bulletSpeed;
+
+			if (LevelManagerScript.currentLevel.isArtilleryModeOn) {
+				newBullet.transform.position += Vector3.up;
+				velocity.y = bulletSpawn.transform.localPosition.z;
+				newBullet.GetComponent<Rigidbody> ().velocity = velocity * artilleryBulletSpeed;
+				newBullet.GetComponent<Rigidbody> ().useGravity = true;
+				isArtilleryScopeActive = false;
+				artilleryScope.SetActive (false);
+				ResetSpeed ();
+			} else {
+				newBullet.GetComponent<Rigidbody> ().velocity = velocity * bulletSpeed;
+			}
+
+
 			newBullet.GetComponent<BulletScript> ().GunDamageModifier = gunDamageModifier;
 			gunDamageModifier = 1.0f;
 			doubleBar.GetComponent<ProgressBar.ProgressRadialBehaviour> ().SetFillerSize (0.0f);
+
+
 
 			if (enemyType == EnemyScript.EnemyManeuver.Smart) {
 
@@ -177,9 +217,11 @@ public class GunScript : MonoBehaviour {
 			Vector3 reflectDirection = Vector3.Reflect (direction, normal);
 
 			if (!isReflectionOn) {
-				isReflectionOn = true;
-				laserReflection.SetActive (true);
+				isReflectionOn = !isReflectionOn;
+				laserReflection.SetActive (isReflectionOn);
 			}
+
+			PlaceArtilleryScope (true, direction, hitinfo.point, reflectDirection);
 
 
 
@@ -187,12 +229,63 @@ public class GunScript : MonoBehaviour {
 			laserReflection.GetComponent<LineRenderer> ().SetPosition (1, hitinfo.point + reflectDirection * laserLength);
 
 		} else {
+			PlaceArtilleryScope (false, direction);
 			if (isReflectionOn) {
-				isReflectionOn = false;
-				laserReflection.SetActive (false);
+				isReflectionOn = !isReflectionOn;
+				laserReflection.SetActive (isReflectionOn);
 			}
 		}
 	}
+
+	public void IncreaseSpeed() // angle is reset in fire()
+	{
+		if (!isArtilleryScopeActive) {
+			isArtilleryScopeActive = true;
+			artilleryScope.SetActive (true);
+		}
+		artilleryBulletSpeed += 0.16f;
+		if (artilleryBulletSpeed > bulletSpeed)
+			ResetSpeed ();
+	}
+
+	private void ResetSpeed()
+	{
+		artilleryBulletSpeed = 0.0f;
+	}
+
+	private float GetArtilleryProjectilePathLength() // called in reflectArray()
+	{
+		float g = Mathf.Abs(Physics.gravity.y); // gravity acceleration
+		float verticalV = (artilleryBulletSpeed + 10 * 0.16f) * Mathf.Sin(artilleryAngle * Mathf.Deg2Rad); // initial velocity
+		//float h = bulletSpawn.transform.position.y;
+		float h = 0;
+		float time = (verticalV + Mathf.Sqrt (verticalV * verticalV + 2 * g * h)) / g; // projectile will be in the air during this time
+
+		return (artilleryBulletSpeed + 10 * 0.16f) * Mathf.Cos (artilleryAngle * Mathf.Deg2Rad) * time;
+	}
+	private void PlaceArtilleryScope(bool isReflected, Vector3 direction, Vector3 hitPosition = new Vector3(), Vector3 reflectDirection = new Vector3())
+	{
+		if (isArtilleryScopeActive) {
+			float length = GetArtilleryProjectilePathLength ();
+			if (isReflected) {
+				
+				float originToWallLength = (bulletSpawn.transform.position - hitPosition).magnitude;
+				if (originToWallLength < length) {
+
+					float reflectedLength = length - originToWallLength;
+					artilleryScope.transform.position = hitPosition + reflectDirection.normalized * reflectedLength;
+
+				} else {
+
+					artilleryScope.transform.position = bulletSpawn.transform.position + direction.normalized * length;
+				}
+
+			} else {
+				artilleryScope.transform.position = bulletSpawn.transform.position + direction.normalized * length;
+			}
+		}
+	}
+
 
 	public void decreaseHealth(float damage)
 	{

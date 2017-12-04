@@ -34,6 +34,12 @@ public class LevelManagerScript : MonoBehaviour {
 		public float armoredSpawnChance;
 		public float armedSpawnChance;
 
+		// modes
+
+		public bool isMovingGunsModeOn;
+		public bool isAdditionalDamageModeOn;
+		public bool isArtilleryModeOn;
+
 		public EnemyScript.EnemyManeuver enemyType;
 
 		public Button.ButtonClickedEvent onButtonClicked;
@@ -239,6 +245,8 @@ public class LevelManagerScript : MonoBehaviour {
 		currentLevel.friendSpawnChance = Convert.ToSingle (FriendSpawnChanceTextBox.text);
 		currentLevel.armoredSpawnChance = Convert.ToSingle (ArmoredSpawnChanceTextBox.text);
 		currentLevel.armedSpawnChance = Convert.ToSingle (ArmedSpawnChanceTextBox.text);
+
+		currentLevel.isArtilleryModeOn = true;
 
 		PlayerPrefs.SetString("TEST", JsonUtility.ToJson(new Level(currentLevel)));
 		//Debug.Log (JsonUtility.ToJson (new LevelListWrapper(initialLevelList)));

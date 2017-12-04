@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
 using System;
 
 public class MainScript : MonoBehaviour {
@@ -29,6 +30,7 @@ public class MainScript : MonoBehaviour {
 	private int remain;
 	private int spawned;
 	private bool finished = false;
+	private bool isPaused = false;
 
 	// balance
 	public int initialNumberOfEnemies;
@@ -64,6 +66,8 @@ public class MainScript : MonoBehaviour {
 	public GameObject pausePanel;
 	public GameObject resultPanel;
 	public GameObject audioPanel;
+	[SerializeField]
+	private Canvas mainCanvas;
 
 	//result panel stuff
 	public Text resultScoreText;
@@ -110,8 +114,6 @@ public class MainScript : MonoBehaviour {
 
 		levelNumber = LevelManagerScript.currentLevel.number;
 		levelText.text = "Level " + levelNumber.ToString ();
-
-
 
 
 		// spawn info
@@ -180,15 +182,50 @@ public class MainScript : MonoBehaviour {
 		//touch
 
 		Touch[] touches = Input.touches;
-		foreach (Touch touch in touches) {
-			if (!(touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Moved))
-				continue;
-			if (Camera.main.ScreenToWorldPoint (new Vector3 (touch.position.x, touch.position.y)).x > 0) {
-				rightGun.fire ();
-			} else {
+
+		if (LevelManagerScript.currentLevel.isArtilleryModeOn) {
+
+			/*foreach (Touch touch in touches) {
+				if (Camera.main.ScreenToWorldPoint (new Vector3 (touch.position.x, touch.position.y)).x > 0) {
+					if (touch.phase == TouchPhase.Stationary)
+						rightGun.IncreaseSpeed ();
+					if (touch.phase == TouchPhase.Ended)
+						rightGun.fire ();
+				} else {
+					if (touch.phase == TouchPhase.Stationary)
+						leftGun.IncreaseSpeed ();
+					if (touch.phase == TouchPhase.Ended)
+						leftGun.fire ();
+				}
+			}*/
+
+			if (Input.GetKey (KeyCode.A)) {
+				leftGun.IncreaseSpeed ();
+			}
+			if (Input.GetKeyUp (KeyCode.A)) {
 				leftGun.fire ();
 			}
+
+		} else {
+			
+			foreach (Touch touch in touches) {
+				if (!(touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Moved) && !isPaused && !IsPointerOverUIObject(mainCanvas, touch.position))
+					continue;
+				BulletScript.BulletType type;
+				if (touch.phase == TouchPhase.Moved)
+					type = BulletScript.BulletType.Spray;
+				else
+					type = BulletScript.BulletType.Basic;
+				if (Camera.main.ScreenToWorldPoint (new Vector3 (touch.position.x, touch.position.y)).x > 0) {
+					rightGun.fire (type);
+				} else {
+					leftGun.fire (type);
+				}
+			}
+
 		}
+
+
 
 		// keyboard
 		if(Input.GetKeyDown(KeyCode.X))
@@ -197,6 +234,16 @@ public class MainScript : MonoBehaviour {
 		}
         
     }
+
+	private bool IsPointerOverUIObject(Canvas canvas, Vector2 screenPosition) {
+		PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
+		eventDataCurrentPosition.position = screenPosition;
+
+		GraphicRaycaster uiRaycaster = canvas.gameObject.GetComponent<GraphicRaycaster>();
+		List<RaycastResult> results = new List<RaycastResult>();
+		uiRaycaster.Raycast(eventDataCurrentPosition, results);
+		return results.Count > 0;
+	}
 
 	private void SpawnEnemy(EnemyScript.EnemyManeuver type)
 	{
@@ -364,6 +411,7 @@ public class MainScript : MonoBehaviour {
 	}
 	private void pause()
 	{
+		isPaused = true;
 		pauseButton.gameObject.SetActive (false);
 		RightButton.gameObject.SetActive (false);
 		LeftButton.gameObject.SetActive (false);
@@ -373,6 +421,7 @@ public class MainScript : MonoBehaviour {
 	}
 	private IEnumerator unpause()
 	{
+		isPaused = false;
 		pausePanel.GetComponent<Animator> ().SetBool ("isHidden", true);
 		yield return new WaitForSecondsRealtime (0.5f);
 		Time.timeScale = 1;
